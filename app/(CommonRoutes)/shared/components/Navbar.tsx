@@ -27,6 +27,7 @@ import {
     LayoutDashboard,
     Bell,
 } from "lucide-react";
+import Image from "next/image";
 
 const navLinks = [
     { label: "Emergencies", href: "/emergency", icon: AlertTriangle },
@@ -52,8 +53,8 @@ export default function Navbar() {
     return (
         <header
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
-                    ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-red-100"
-                    : "bg-transparent"
+                ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-red-100"
+                : "bg-transparent"
                 }`}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -62,10 +63,11 @@ export default function Navbar() {
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2 group">
                         <div className="relative">
-                            <div className="w-9 h-9 bg-red-600 rounded-xl flex items-center justify-center group-hover:bg-red-700 transition-colors">
-                                <AlertTriangle className="w-5 h-5 text-white" strokeWidth={2.5} />
+                            <div className="w-9 h-9">
+
+                                <Image src={"https://i.ibb.co/Hfhp676g/favicon.jpg" || ""} alt="logo" width={100} height={100} priority />
                             </div>
-                            <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white animate-pulse" />
+
                         </div>
                         <div className="flex flex-col leading-none">
                             <span className="font-bold text-gray-900 text-base tracking-tight">
@@ -87,8 +89,8 @@ export default function Navbar() {
                                     key={href}
                                     href={href}
                                     className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${isActive
-                                            ? "bg-red-50 text-red-600"
-                                            : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                                        ? "bg-red-50 text-red-600"
+                                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                                         }`}
                                 >
                                     <Icon className="w-4 h-4" strokeWidth={2} />
@@ -194,8 +196,8 @@ export default function Navbar() {
                                                 href={href}
                                                 onClick={() => setMobileOpen(false)}
                                                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${isActive
-                                                        ? "bg-red-50 text-red-600"
-                                                        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                                    ? "bg-red-50 text-red-600"
+                                                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                                                     }`}
                                             >
                                                 <Icon className="w-4 h-4" strokeWidth={2} />

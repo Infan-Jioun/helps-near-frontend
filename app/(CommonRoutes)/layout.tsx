@@ -1,12 +1,17 @@
+import React from "react";
 import Navbar from "./shared/components/Navbar";
 
 export default function commonLayout({
     children,
-}: Readonly<{
+}: {
     children: React.ReactNode;
-}>) {
+}) {
     return (
-        <Navbar />
-        { children }
+        <html lang="en">
+            <body>
+                <Navbar />
+                <main className="pt-20">{children}</main>
+            </body>
+        </html>
     );
 }

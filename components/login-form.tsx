@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -8,9 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, Eye, EyeOff, Loader2, CircleAlert } from "lucide-react";
+import { Eye, EyeOff, Loader2, CircleAlert } from "lucide-react";
 import { authApi } from "@/lib/authApi";
 import { getErrorMessage } from "@/lib/getErrorMessage";
+import Logo from "./logo/logo";
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
   const router = useRouter();
@@ -62,6 +64,14 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
         message.toLowerCase().includes("not verified")
       ) {
         setError("Please verify your email before logging in.");
+        setTimeout(() => {
+          router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+        }, 1500);
+
+        return;
+
+
+
       } else if (status === 403) {
         setError("Your account has been blocked. Please contact support.");
       } else {
@@ -76,10 +86,8 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="border-red-100 shadow-sm">
         <CardHeader className="text-center pb-2">
-          <div className="flex justify-center mb-3">
-            <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center">
-              <AlertTriangle className="w-5 h-5 text-white" strokeWidth={2.5} />
-            </div>
+          <div>
+            <Logo />
           </div>
           <CardTitle className="text-xl">Welcome back</CardTitle>
           <CardDescription>Sign in to your Helps Near account</CardDescription>
@@ -102,12 +110,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <a
-                  href="#"
-                  className="text-xs text-red-600 hover:underline underline-offset-4"
-                >
-                  Forgot your password?
-                </a>
+
               </div>
               <div className="relative">
                 <Input
@@ -115,6 +118,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                   name="password"
                   type={showPassword ? "text" : "password"}
                   required
+                  placeholder="Provide Your Password"
                   className="pr-9"
                 />
                 <button

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -8,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, Eye, EyeOff, Loader2, CircleAlert, CircleCheck } from "lucide-react";
+import { Eye, EyeOff, Loader2, CircleAlert, CircleCheck } from "lucide-react";
 import { authApi } from "@/lib/authApi";
 import { getErrorMessage } from "@/lib/getErrorMessage";
 import Logo from "./logo/logo";
@@ -111,6 +112,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
                     id="password"
                     name="password"
                     type={showPassword ? "text" : "password"}
+                    placeholder="Provide your password"
                     required
                     className="pr-9"
                   />
@@ -119,6 +121,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
+
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
@@ -131,6 +134,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
                     name="confirm-password"
                     type={showConfirm ? "text" : "password"}
                     required
+                    placeholder="Confirm your password"
                     className="pr-9"
                   />
                   <button
@@ -186,9 +190,9 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
 
       <p className="px-6 text-center text-xs text-muted-foreground">
         By clicking continue, you agree to our{" "}
-        <a href="#" className="underline hover:text-red-600">Terms of Service</a>{" "}
+        <Link href="#" className="underline hover:text-red-600">Terms of Service</Link>{" "}
         and{" "}
-        <a href="#" className="underline hover:text-red-600">Privacy Policy</a>.
+        <Link href="#" className="underline hover:text-red-600">Privacy Policy</Link>.
       </p>
     </div>
   );

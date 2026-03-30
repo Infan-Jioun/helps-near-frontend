@@ -33,7 +33,7 @@ export const authApi = {
     },
 
     resendOtp: async (payload: { email: string }) => {
-        const res = await axiosInstance.post("/api/v1/auth/email-otp/send-verification-otp", {
+        const res = await axiosInstance.post("/api/v1/auth/resend-otp", {
             email: payload.email,
             type: "email-verification",
         });

@@ -1,9 +1,9 @@
 import { Route } from "@/lib/routes";
 import { LayoutDashboard } from "lucide-react";
 
-export const userRoutes: Route[] = [
+export const volunteerRoutes: Route[] = [
     {
-        title: "User Dashboard",
+        title: "Volunteer Dashboard",
         icon: LayoutDashboard,
         items: [
             {
@@ -11,14 +11,18 @@ export const userRoutes: Route[] = [
                 url: "/create-emergency",
             },
             {
-              title : "My Emergencies",
-              url : "/my-emergencies"
+                title: "My Profile",
+                url: "/myprofile",
+            },
+            {
+                title: "My Emergencies",
+                url: "/my-emergencies"
             },
             {
                 title: "Payment Management",
                 url: "/payment-management",
             },
-           
+
         ],
     },
 ];

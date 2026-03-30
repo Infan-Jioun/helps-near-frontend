@@ -11,8 +11,16 @@ export const adminRoutes: Route[] = [
                 url: "/users-management",
             },
             {
-              title : "Volunteer Management",
-              url : "/volunteer-management"
+                title: "Create Emergency",
+                url: "/create-emergency",
+            },
+            {
+                title: "My Emergencies",
+                url: "/my-emergencies"
+            },
+            {
+                title: "Volunteer Management",
+                url: "/volunteer-management"
             },
             {
                 title: "Payment Management",
@@ -22,7 +30,7 @@ export const adminRoutes: Route[] = [
                 title: "Emergency Management",
                 url: "/emergency-management",
             },
-           
+
         ],
     },
 ];

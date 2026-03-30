@@ -1,7 +1,7 @@
 import React from 'react'
 import Dashboard from '../page'
 
-export default function VolunteerDashboard() {
+export default function UserDashboard() {
     return (
         <div><Dashboard /></div>
     )

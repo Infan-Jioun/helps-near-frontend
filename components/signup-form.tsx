@@ -13,21 +13,30 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AlertTriangle, Eye, EyeOff, Loader2 } from "lucide-react";
+import { authApi } from "@/lib/authApi";
+
 
 export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
+
     const form = e.currentTarget;
+    const name = (form.elements.namedItem("name") as HTMLInputElement).value;
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
     const password = (form.elements.namedItem("password") as HTMLInputElement).value;
     const confirm = (form.elements.namedItem("confirm-password") as HTMLInputElement).value;
 
@@ -40,9 +49,18 @@ export function SignupForm({
       return;
     }
 
-    setLoading(true);
-    // TODO: call your register API here
-    setTimeout(() => setLoading(false), 1500);
+    try {
+      setLoading(true);
+      await authApi.register({ name, email, password });
+      setSuccess("Account created! Please check your email for OTP verification.");
+      setTimeout(() => router.push(`/verify-email?email=${email}`), 2000);
+    } catch (err: any) {
+      setError(
+        err?.response?.data?.message || "Something went wrong. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -63,31 +81,16 @@ export function SignupForm({
         <CardContent>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
 
-            {/* Full Name */}
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="name">Full Name</Label>
-              <Input
-                id="name"
-                name="name"
-                type="text"
-                placeholder="John Doe"
-                required
-              />
+              <Input id="name" name="name" type="text" placeholder="John Doe" required />
             </div>
 
-            {/* Email */}
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-              />
+              <Input id="email" name="email" type="email" placeholder="m@example.com" required />
             </div>
 
-            {/* Password + Confirm */}
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="password">Password</Label>
@@ -133,14 +136,18 @@ export function SignupForm({
               Must be at least 8 characters long.
             </p>
 
-            {/* Error */}
             {error && (
-              <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">
+              <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg border border-red-100">
                 {error}
               </p>
             )}
 
-            {/* Submit */}
+            {success && (
+              <p className="text-sm text-green-600 bg-green-50 px-3 py-2 rounded-lg border border-green-100">
+                {success}
+              </p>
+            )}
+
             <Button
               type="submit"
               disabled={loading}
@@ -158,10 +165,7 @@ export function SignupForm({
 
             <p className="text-center text-sm text-muted-foreground">
               Already have an account?{" "}
-              <Link
-                href="/login"
-                className="text-red-600 font-medium hover:underline"
-              >
+              <Link href="/login" className="text-red-600 font-medium hover:underline">
                 Sign in
               </Link>
             </p>
@@ -171,14 +175,9 @@ export function SignupForm({
 
       <p className="px-6 text-center text-xs text-muted-foreground">
         By clicking continue, you agree to our{" "}
-        <a href="#" className="underline hover:text-red-600">
-          Terms of Service
-        </a>{" "}
+        <a href="#" className="underline hover:text-red-600">Terms of Service</a>{" "}
         and{" "}
-        <a href="#" className="underline hover:text-red-600">
-          Privacy Policy
-        </a>
-        .
+        <a href="#" className="underline hover:text-red-600">Privacy Policy</a>.
       </p>
     </div>
   );

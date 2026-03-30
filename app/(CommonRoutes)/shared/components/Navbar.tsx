@@ -30,7 +30,7 @@ import {
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import Logo from "@/components/logo/logo";
-
+import { useRouter } from "next/navigation";
 const navLinks = [
     { label: "Home", href: "/", icon: Home },
     { label: "Emergencies", href: "/emergency", icon: AlertTriangle },
@@ -43,16 +43,24 @@ export default function Navbar() {
     const [scrolled, setScrolled] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
     const pathname = usePathname();
-
+    const router = useRouter();
     // Session hook
 
     const { data: session, isPending } = authClient.useSession();
-   console.log(session)
+    console.log(session)
     const handleLogout = async () => {
         await authClient.signOut();
         window.location.reload();
     };
 
+    const role = (session?.user as any)?.role;
+
+    const dashboardRoute =
+        role === "ADMIN"
+            ? "/dashboard/admin"
+            : role === "VOLUNTEER"
+                ? "/dashboard/volunteer"
+                : "/dashboard/user";
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 20);
         window.addEventListener("scroll", onScroll);
@@ -110,7 +118,12 @@ export default function Navbar() {
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
                                         <DropdownMenuItem asChild><Link href="/profile"><User className="w-4 h-4 mr-2" />Profile</Link></DropdownMenuItem>
-                                        <DropdownMenuItem asChild><Link href="/dashboard"><LayoutDashboard className="w-4 h-4 mr-2" />Dashboard</Link></DropdownMenuItem>
+                                        <DropdownMenuItem asChild>
+                                            <Link href={dashboardRoute}>
+                                                <LayoutDashboard className="w-4 h-4 mr-2" />
+                                                Dashboard
+                                            </Link>
+                                        </DropdownMenuItem>
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem onClick={handleLogout} className="text-red-600 cursor-pointer">
                                             <LogOut className="w-4 h-4 mr-2" />Logout

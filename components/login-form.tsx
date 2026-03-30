@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, Eye, EyeOff, Loader2, CircleAlert } from "lucide-react";
+import {  Eye, EyeOff, Loader2, CircleAlert } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { getErrorMessage } from "@/lib/getErrorMessage";
 import Logo from "./logo/logo";
@@ -63,17 +63,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
         }
         return;
       }
-
-      const role = (res.data?.user as any)?.role;
-      router.refresh();
-
-      if (role === "ADMIN") {
-        router.push("/dashboard/admin");
-      } else if (role === "VOLUNTEER") {
-        router.push("/dashboard/volunteer");
-      } else {
         router.push("/");
-      }
 
     } catch (err: any) {
       setError(getErrorMessage(err));

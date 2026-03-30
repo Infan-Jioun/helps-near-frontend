@@ -110,7 +110,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
-                  <Input id="password" name="password"  placeholder="Provide Your Password" type={showPassword ? "text" : "password"} required className="pr-9" />
+                  <Input id="password" name="password" placeholder="Provide Your Password" type={showPassword ? "text" : "password"} required className="pr-9" />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -119,7 +119,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="confirm-password">Confirm Password</Label>
                 <div className="relative">
-                  <Input id="confirm-password" name="confirm-password"  placeholder="Confirm Your Password" type={showConfirm ? "text" : "password"} required className="pr-9" />
+                  <Input id="confirm-password" name="confirm-password" placeholder="Confirm Your Password" type={showConfirm ? "text" : "password"} required className="pr-9" />
                   <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                     {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -153,14 +153,15 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
               Already have an account?{" "}
               <Link href="/login" className="text-red-600 font-medium hover:underline">Sign in</Link>
             </p>
+            <Link href="/volunteer-register" className="underline font-bold text-center text-red-500 hover:text-red-600 ">Volunteer Registration</Link>
           </form>
         </CardContent>
       </Card>
 
       <p className="px-6 text-center text-xs text-muted-foreground">
         By clicking continue, you agree to our{" "}
-        <a href="#" className="underline hover:text-red-600">Terms of Service</a>{" "}
-        and <a href="#" className="underline hover:text-red-600">Privacy Policy</a>.
+        {" "}
+        and <Link href="" className="underline hover:text-red-600">Privacy Policy</Link>.
       </p>
     </div>
   );

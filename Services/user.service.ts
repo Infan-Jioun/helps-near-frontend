@@ -8,9 +8,9 @@ export const userService = {
                 .map(c => `${c.name}=${c.value}`)
                 .join("; ");
 
-            const res = await fetch(`http://localhost:5000/api/auth/get-session `, {
+            const res = await fetch(`https://hepls-near.vercel.app/api/auth/get-session `, {
                 headers: {
-                    Cookie: allCookies,  // ← এভাবে forward করো
+                    Cookie: allCookies,
                 },
                 cache: "no-store",
             });

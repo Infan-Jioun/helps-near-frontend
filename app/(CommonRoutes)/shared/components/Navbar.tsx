@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -30,7 +31,6 @@ import {
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import Logo from "@/components/logo/logo";
-import { useRouter } from "next/navigation";
 const navLinks = [
     { label: "Home", href: "/", icon: Home },
     { label: "Emergencies", href: "/emergency", icon: AlertTriangle },
@@ -43,8 +43,6 @@ export default function Navbar() {
     const [scrolled, setScrolled] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
     const pathname = usePathname();
-    const router = useRouter();
-    // Session hook
 
     const { data: session, isPending } = authClient.useSession();
     console.log(session)
@@ -146,7 +144,7 @@ export default function Navbar() {
                                 {mobileOpen ? <X /> : <Menu />}
                             </Button>
                         </SheetTrigger>
-                        <SheetContent side="right" className="w-[280px] p-0">
+                        <SheetContent side="right" className="w-70 p-0">
                             <div className="flex flex-col h-full">
                                 <nav className="flex flex-col p-4 gap-2 flex-1">
                                     {navLinks.map(({ label, href, icon: Icon }) => (

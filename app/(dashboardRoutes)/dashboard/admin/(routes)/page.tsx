@@ -8,23 +8,23 @@ export const adminRoutes: Route[] = [
         items: [
             {
                 title: "User Management",
-                url: "/users-management",
+                url: "/dashboard/admin/users-management",
             },
             {
                 title: "Create Emergency",
-                url: "/create-emergency",
+                url: "/dashboard/admin/create-emergency",
             },
             {
                 title: "My Emergencies",
-                url: "/my-emergencies"
+                url: "/dashboard/admin/my-emergencies"
             },
             {
                 title: "Volunteer Management",
-                url: "/volunteer-management"
+                url: "/dashboard/admin/volunteer-management"
             },
             {
                 title: "Payment Management",
-                url: "/payment-management",
+                url: "/dashboard/admin/payment-management",
             },
             {
                 title: "Emergency Management",

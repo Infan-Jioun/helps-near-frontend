@@ -93,6 +93,7 @@ export default function VolunteerRegisterForm() {
                 nidNumber: nidNumber || undefined,
                 skills: selectedSkills,
                 bio: bio || undefined,
+            
             });
             setSuccess("Volunteer registered successfully! You can now login.");
             setTimeout(() => router.push("/login"), 2000);

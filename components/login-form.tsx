@@ -3,29 +3,28 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, Eye, EyeOff, Loader2 } from "lucide-react";
+import { AlertTriangle, Eye, EyeOff, Loader2, CircleAlert } from "lucide-react";
 import { authApi } from "@/lib/authApi";
+import { getErrorMessage } from "@/lib/getErrorMessage";
 
-
-export function LoginForm({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const validateForm = (email: string, password: string): string => {
+    if (!email.trim()) return "Email is required.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Please enter a valid email address.";
+    if (!password) return "Password is required.";
+    if (password.length < 6) return "Password must be at least 6 characters.";
+    return "";
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,6 +33,12 @@ export function LoginForm({
     const form = e.currentTarget;
     const email = (form.elements.namedItem("email") as HTMLInputElement).value;
     const password = (form.elements.namedItem("password") as HTMLInputElement).value;
+
+    const validationError = validateForm(email, password);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
 
     try {
       setLoading(true);
@@ -47,11 +52,20 @@ export function LoginForm({
         router.push("/dashboard/user");
       }
     } catch (err: any) {
-      const message = err?.response?.data?.message;
-      if (message?.toLowerCase().includes("email")) {
+      const status = err?.response?.status;
+      const message = err?.response?.data?.message || "";
+
+      if (status === 401) {
+        setError("Invalid email or password. Please try again.");
+      } else if (
+        message.toLowerCase().includes("verify") ||
+        message.toLowerCase().includes("not verified")
+      ) {
         setError("Please verify your email before logging in.");
+      } else if (status === 403) {
+        setError("Your account has been blocked. Please contact support.");
       } else {
-        setError(message || "Invalid email or password.");
+        setError(getErrorMessage(err));
       }
     } finally {
       setLoading(false);
@@ -68,9 +82,7 @@ export function LoginForm({
             </div>
           </div>
           <CardTitle className="text-xl">Welcome back</CardTitle>
-          <CardDescription>
-            Sign in to your Helps Near account
-          </CardDescription>
+          <CardDescription>Sign in to your Helps Near account</CardDescription>
         </CardHeader>
 
         <CardContent>
@@ -116,9 +128,10 @@ export function LoginForm({
             </div>
 
             {error && (
-              <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg border border-red-100">
-                {error}
-              </p>
+              <div className="flex items-start gap-2 text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg border border-red-100">
+                <CircleAlert className="w-4 h-4 mt-0.5 shrink-0" />
+                <span>{error}</span>
+              </div>
             )}
 
             <Button
@@ -127,10 +140,7 @@ export function LoginForm({
               className="w-full bg-red-600 hover:bg-red-700 text-white mt-1"
             >
               {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Signing in...
-                </>
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Signing in...</>
               ) : (
                 "Login"
               )}

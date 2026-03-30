@@ -1,32 +1,73 @@
+import {
+    HeartPulse,
+    Flame,
+    Car,
+    Waves,
+    Siren,
+    AlertTriangle,
+} from "lucide-react";
+
 const emergencyTypes = [
-    { label: "Medical", icon: "🏥", color: "bg-red-100 text-red-700 border-red-200" },
-    { label: "Fire", icon: "🔥", color: "bg-orange-100 text-orange-700 border-orange-200" },
-    { label: "Accident", icon: "🚗", color: "bg-yellow-100 text-yellow-700 border-yellow-200" },
-    { label: "Flood", icon: "🌊", color: "bg-blue-100 text-blue-700 border-blue-200" },
-    { label: "Crime", icon: "🚨", color: "bg-purple-100 text-purple-700 border-purple-200" },
-    { label: "Other", icon: "⚠️", color: "bg-gray-100 text-gray-700 border-gray-200" },
+    {
+        label: "Medical",
+        icon: HeartPulse,
+    },
+    {
+        label: "Fire",
+        icon: Flame,
+    },
+    {
+        label: "Accident",
+        icon: Car,
+    },
+    {
+        label: "Flood",
+        icon: Waves,
+    },
+    {
+        label: "Crime",
+        icon: Siren,
+    },
+    {
+        label: "Other",
+        icon: AlertTriangle,
+    },
 ];
 
 export default function EmergencyTypesSection() {
     return (
-        <section className="py-16 bg-gray-50">
+        <section className="py-16 bg-red-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-10">
-                    <h2 className="text-3xl font-bold text-gray-900 mb-3">
-                        We Handle All Types of Emergencies
+
+                {/* Header */}
+                <div className="text-center mb-12">
+                    <h2 className="text-3xl font-bold text-red-700 mb-3">
+                        Emergency Support Categories
                     </h2>
-                    <p className="text-gray-500">
-                        Whatever the situation, our volunteers are trained to help.
+                    <p className="text-red-500">
+                        Fast response for every critical situation
                     </p>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-                    {emergencyTypes.map(({ label, icon, color }) => (
+
+                {/* Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-5">
+                    {emergencyTypes.map(({ label, icon: Icon }) => (
                         <div
                             key={label}
-                            className={`flex flex-col items-center gap-2 p-4 rounded-2xl border ${color} cursor-pointer hover:scale-105 transition-transform`}
+                            className="group flex flex-col items-center gap-3 p-5 rounded-2xl border border-red-200 bg-white shadow-sm cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
                         >
-                            <span className="text-3xl">{icon}</span>
-                            <span className="text-sm font-semibold">{label}</span>
+                            {/* Icon */}
+                            <div className="bg-red-100 p-3 rounded-full group-hover:bg-red-200 transition">
+                                <Icon
+                                    size={32}
+                                    className="text-red-600 group-hover:scale-110 transition-transform duration-200"
+                                />
+                            </div>
+
+                            {/* Label */}
+                            <span className="text-sm font-semibold text-red-700">
+                                {label}
+                            </span>
                         </div>
                     ))}
                 </div>

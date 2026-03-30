@@ -26,11 +26,13 @@ import {
     User,
     LayoutDashboard,
     Bell,
+    Home,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import Logo from "@/components/logo/logo";
 
 const navLinks = [
+    { label: "Home", href: "/", icon: Home },
     { label: "Emergencies", href: "/emergency", icon: AlertTriangle },
     { label: "Volunteers", href: "/volunteers", icon: Users },
     { label: "How It Works", href: "/how-it-works", icon: Heart },

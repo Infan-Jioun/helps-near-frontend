@@ -110,7 +110,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
-                  <Input id="password" name="password" type={showPassword ? "text" : "password"} required className="pr-9" />
+                  <Input id="password" name="password"  placeholder="Provide Your Password" type={showPassword ? "text" : "password"} required className="pr-9" />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -119,7 +119,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="confirm-password">Confirm Password</Label>
                 <div className="relative">
-                  <Input id="confirm-password" name="confirm-password" type={showConfirm ? "text" : "password"} required className="pr-9" />
+                  <Input id="confirm-password" name="confirm-password"  placeholder="Confirm Your Password" type={showConfirm ? "text" : "password"} required className="pr-9" />
                   <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                     {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>

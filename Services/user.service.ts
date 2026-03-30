@@ -1,31 +1,26 @@
 import { cookies } from "next/headers";
 
-
-
 export const userService = {
-
-    getSesstion: async function () {
+    getSession: async function () {
         try {
             const cookieStore = await cookies();
-            const res = await fetch(`${process.env.AUTH_URL}/get-session`, {
+            const allCookies = cookieStore.getAll()
+                .map(c => `${c.name}=${c.value}`)
+                .join("; ");
+
+            const res = await fetch(`http://localhost:5000/api/auth/get-session `, {
                 headers: {
-                    Cookie: cookieStore.toString()
+                    Cookie: allCookies,  // ← এভাবে forward করো
                 },
-                cache: "no-store"
-            })
+                cache: "no-store",
+            });
+
             const session = await res.json();
-            if (session === null) {
-                return {
-                    data: null, error: {
-                        message: "session is missing"
-
-                    }
-                }
-
-            }
-            return { data: session, isPending: session, error: null }
+            if (!session) return { data: null, error: { message: "No session" } };
+            return { data: session, error: null };
         } catch (error) {
             console.error(error);
+            return { data: null, error: { message: "Failed to fetch session" } };
         }
     }
-} 
+};

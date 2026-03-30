@@ -9,8 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Loader2, CircleAlert, CircleCheck } from "lucide-react";
-import { authApi } from "@/lib/authApi";
+import { AlertTriangle, Eye, EyeOff, Loader2, CircleAlert, CircleCheck } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
 import { getErrorMessage } from "@/lib/getErrorMessage";
 import Logo from "./logo/logo";
 
@@ -22,12 +22,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const validateForm = (
-    name: string,
-    email: string,
-    password: string,
-    confirm: string
-  ): string => {
+  const validateForm = (name: string, email: string, password: string, confirm: string): string => {
     if (!name.trim()) return "Full name is required.";
     if (name.trim().length < 2) return "Name must be at least 2 characters.";
     if (!email.trim()) return "Email is required.";
@@ -58,9 +53,28 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
 
     try {
       setLoading(true);
-      await authApi.register({ name, email, password });
+
+      const res = await authClient.signUp.email({
+        name,
+        email,
+        password,
+      });
+
+      if (res.error) {
+        const status = res.error.status;
+        const message = res.error.message || "";
+
+        if (status === 409 || message.toLowerCase().includes("already exists")) {
+          setError("An account with this email already exists.");
+        } else {
+          setError(message || "Something went wrong. Please try again.");
+        }
+        return;
+      }
+
       setSuccess("Account created! Please check your email for OTP verification.");
       setTimeout(() => router.push(`/verify-email?email=${encodeURIComponent(email)}`), 2000);
+
     } catch (err: any) {
       setError(getErrorMessage(err));
     } finally {
@@ -72,7 +86,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="border-red-100 shadow-sm">
         <CardHeader className="text-center pb-2">
-          <div>
+          <div className="flex justify-center mb-3">
             <Logo />
           </div>
           <CardTitle className="text-xl">Create your account</CardTitle>
@@ -84,44 +98,20 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
 
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="name">Full Name</Label>
-              <Input
-                id="name"
-                name="name"
-                type="text"
-                placeholder="John Doe"
-                required
-              />
+              <Input id="name" name="name" type="text" placeholder="John Doe" required />
             </div>
 
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-              />
+              <Input id="email" name="email" type="email" placeholder="m@example.com" required />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
-                  <Input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Provide your password"
-                    required
-                    className="pr-9"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
-
+                  <Input id="password" name="password" type={showPassword ? "text" : "password"} required className="pr-9" />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
@@ -129,19 +119,8 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="confirm-password">Confirm Password</Label>
                 <div className="relative">
-                  <Input
-                    id="confirm-password"
-                    name="confirm-password"
-                    type={showConfirm ? "text" : "password"}
-                    required
-                    placeholder="Confirm your password"
-                    className="pr-9"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirm(!showConfirm)}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
+                  <Input id="confirm-password" name="confirm-password" type={showConfirm ? "text" : "password"} required className="pr-9" />
+                  <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                     {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
@@ -166,23 +145,13 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
               </div>
             )}
 
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-red-600 hover:bg-red-700 text-white mt-1"
-            >
-              {loading ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Creating account...</>
-              ) : (
-                "Create Account"
-              )}
+            <Button type="submit" disabled={loading} className="w-full bg-red-600 hover:bg-red-700 text-white mt-1">
+              {loading ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" />Creating account...</>) : "Create Account"}
             </Button>
 
             <p className="text-center text-sm text-muted-foreground">
               Already have an account?{" "}
-              <Link href="/login" className="text-red-600 font-medium hover:underline">
-                Sign in
-              </Link>
+              <Link href="/login" className="text-red-600 font-medium hover:underline">Sign in</Link>
             </p>
           </form>
         </CardContent>
@@ -190,9 +159,8 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
 
       <p className="px-6 text-center text-xs text-muted-foreground">
         By clicking continue, you agree to our{" "}
-        <Link href="#" className="underline hover:text-red-600">Terms of Service</Link>{" "}
-        and{" "}
-        <Link href="#" className="underline hover:text-red-600">Privacy Policy</Link>.
+        <a href="#" className="underline hover:text-red-600">Terms of Service</a>{" "}
+        and <a href="#" className="underline hover:text-red-600">Privacy Policy</a>.
       </p>
     </div>
   );

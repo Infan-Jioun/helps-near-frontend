@@ -46,7 +46,8 @@ export default async function HeroSection() {
             <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center max-w-4xl mx-auto">
                     <Badge className="mb-6 bg-red-100 text-red-700 border-red-200 hover:bg-red-100 px-4 py-1.5">
-                        🚨 Emergency Help Platform — Bangladesh
+                        <AlertTriangle className="w-4 h-4 mr-2" />
+                        Emergency Help Platform — Bangladesh
                     </Badge>
 
                     <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight mb-6">
@@ -81,7 +82,7 @@ export default async function HeroSection() {
                             className="px-8 py-6 text-lg rounded-xl gap-2 border-gray-200"
                             asChild
                         >
-                            <Link href="/volunteers">
+                            <Link href="/volunteer-register">
                                 <Users className="w-5 h-5" />
                                 Become a Volunteer
                             </Link>

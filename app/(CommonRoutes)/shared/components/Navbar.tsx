@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { axiosInstance } from "@/lib/axiosInstance";
 import Logo from "@/components/logo/logo";
+import { authApi } from "@/lib/authApi";
 
 const navLinks = [
     { label: "Home", href: "/", icon: Home },
@@ -50,16 +51,15 @@ export default function Navbar() {
 
 
     useEffect(() => {
-        axiosInstance
-            .get("/api/v1/auth/me")
-            .then((res) => setUser(res.data?.data || null))
+        authApi.getMe()
+            .then((data) => setUser(data?.data || null))
             .catch(() => setUser(null))
             .finally(() => setIsPending(false));
     }, [pathname]); 
 
     const handleLogout = async () => {
         try {
-            await axiosInstance.post("/api/v1/auth/logout");
+            await  await authApi.logout();
         } catch {
         } finally {
             setUser(null);

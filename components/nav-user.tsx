@@ -20,10 +20,11 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { authApi } from "@/lib/authApi"
 import { axiosInstance } from "@/lib/axiosInstance"
 import { EllipsisVerticalIcon, CircleUserRoundIcon, CreditCardIcon, BellIcon, LogOutIcon } from "lucide-react"
-import { usePathname, useRouter } from "next/navigation"
-import { useState } from "react"
+import { useRouter } from "next/navigation"
+
 
 export function NavUser({
   user,
@@ -39,7 +40,7 @@ export function NavUser({
   const router = useRouter();
   const handleLogout = async () => {
     try {
-      await axiosInstance.post("/api/v1/auth/logout");
+      await authApi.logout();
     } catch {
     } finally {
       router.push("/login");

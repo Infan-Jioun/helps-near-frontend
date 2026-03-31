@@ -15,6 +15,7 @@ import { getErrorMessage } from "@/lib/getErrorMessage";
 import Logo from "./logo/logo";
 import { axiosInstance } from "@/lib/axiosInstance";
 import { toast } from "sonner";
+import { authApi } from "@/lib/authApi";
 
 export function SignupForm({ className, ...props }: React.ComponentProps<"div">) {
   const router = useRouter();
@@ -55,12 +56,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
 
     try {
       setLoading(true);
-
-      const res = await axiosInstance.post("/api/v1/auth/register", {
-        name,
-        email,
-        password,
-      });
+      const res = await authApi.register({ name, email, password });
       if (res.data.success) {
            router.push(`/verify-email?email=${encodeURIComponent(email)}`);
         toast.success("Account created successfully! Please check your email for OTP verification.");

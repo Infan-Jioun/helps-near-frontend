@@ -1,12 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import * as React from "react";
 import Link from "next/link";
-import { NavDocuments } from "@/components/nav-documents";
+
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
+
 import {
   Sidebar,
   SidebarContent,
@@ -16,59 +16,121 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import {
-  Settings2Icon,
-  CircleHelpIcon,
-  SearchIcon,
-  AlertTriangle,
-} from "lucide-react";
-import { authClient } from "@/lib/auth-client";
+
+import { Settings2Icon, CircleHelpIcon, SearchIcon } from "lucide-react";
+
+import { axiosInstance } from "@/lib/axiosInstance";
+import Logo from "./logo/logo";
 import { adminRoutes } from "@/app/(dashboardRoutes)/dashboard/admin/(routes)/page";
 import { volunteerRoutes } from "@/app/(dashboardRoutes)/dashboard/volunteer/(routes)/page";
 import { userRoutes } from "@/app/(dashboardRoutes)/dashboard/user/(routes)/page";
-import Logo from "./logo/logo";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type Role = "ADMIN" | "VOLUNTEER" | "USER";
+
+// ✅ API: res.data.data = { id, name, email, role, ... } — কোনো nested "user" object নেই
+interface SessionUser {
+  id?: string;
+  name?: string;
+  email?: string;
+  profileImage?: string;
+  role?: Role;
+  status?: string;
+  isVolunteer?: boolean;
+}
+
+interface NavUserShape {
+  name: string;
+  email: string;
+  avatar: string;
+}
 
 
-const navSecondary: { title: string; url: string; icon: React.ReactNode }[] = [
+const NAV_SECONDARY_ITEMS = [
   { title: "Settings", url: "/settings", icon: <Settings2Icon /> },
-  { title: "Get Help", url: "/help", icon: <CircleHelpIcon /> },
+  { title: "Help", url: "/help", icon: <CircleHelpIcon /> },
   { title: "Search", url: "/search", icon: <SearchIcon /> },
 ];
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { data: session, isPending } = authClient.useSession();
+const GUEST_USER: NavUserShape = { name: "Guest", email: "", avatar: "" };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const role = (session?.user as any)?.role;
+function getNavRoutes(role?: Role) {
+  switch (role) {
+    case "ADMIN": return adminRoutes;
+    case "VOLUNTEER": return volunteerRoutes;
+    default: return userRoutes;
+  }
+}
 
-  const navMain = React.useMemo(() => {
-    if (role === "ADMIN") return adminRoutes;
-    if (role === "VOLUNTEER") return volunteerRoutes;
-    return userRoutes;
-  }, [role]);
+function buildNavUser(user?: SessionUser): NavUserShape {
+  if (!user) return GUEST_USER;
+  return {
+    name: user.name || "User",
+    email: user.email || "",
+    avatar: user.profileImage || "",
+  };
+}
 
-  const user = session?.user
-    ? {
-      name: session.user.name || "User",
-      email: session.user.email || "",
-      avatar: (session.user as any)?.image || "",
-    }
-    : { name: "Guest", email: "", avatar: "" };
+
+function NavSkeleton() {
+  return (
+    <div className="px-4 py-6 flex flex-col gap-2" aria-busy="true" aria-label="Loading navigation">
+      {Array.from({ length: 4 }, (_, i) => (
+        <div key={i} className="h-8 bg-muted rounded animate-pulse" />
+      ))}
+    </div>
+  );
+}
+
+
+
+function useSession() {
+  const [user, setUser] = React.useState<SessionUser | null>(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    let cancelled = false;
+
+    const fetchSession = async () => {
+      try {
+        const res = await axiosInstance.get("/api/v1/auth/me");
+        const userData: SessionUser = res.data?.data ?? null;
+
+        if (!cancelled) setUser(userData);
+      } catch {
+        if (!cancelled) setUser(null);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    fetchSession();
+    return () => { cancelled = true; };
+  }, []);
+
+  return { user, loading };
+}
+
+
+export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
+  const { user, loading } = useSession();
+
+  const navMain = React.useMemo(() => getNavRoutes(user?.role), [user?.role]);
+  const navUser = React.useMemo(() => buildNavUser(user ?? undefined), [user]);
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
+
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:p-1.5!"
-            >
-              <Link href="/" className="flex items-center gap-2 mb-4">
-                <div className="w-5 h-7 mt-5 bg-red-600 rounded-lg flex items-center justify-center shrink-0">
+            <SidebarMenuButton asChild>
+              <Link href="/" className="flex items-center gap-2">
+                <div className="w-7 h-7 bg-red-600 rounded-lg flex items-center justify-center">
                   <Logo />
                 </div>
-                <span className="text-base font-semibold">
+                <span className="font-semibold">
                   Helps<span className="text-red-600">Near</span>
                 </span>
               </Link>
@@ -78,21 +140,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
 
       <SidebarContent>
-        {isPending ? (
-          <div className="px-4 py-6 flex flex-col gap-2">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-8 bg-gray-100 rounded-lg animate-pulse" />
-            ))}
-          </div>
-        ) : (
-          <NavMain items={navMain} />
-        )}
-        <NavSecondary items={navSecondary} className="mt-auto" />
-      </SidebarContent>
+        {loading ? <NavSkeleton /> : <NavMain items={navMain} />}
 
+        <NavSecondary
+          items={NAV_SECONDARY_ITEMS}
+          className="mt-auto"
+        />
+      </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} />
+        <NavUser user={navUser} />
       </SidebarFooter>
+
     </Sidebar>
   );
 }

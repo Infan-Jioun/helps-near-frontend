@@ -52,24 +52,21 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 
       const data = res.data?.data;
       const emailVerified = data?.user?.emailVerified;
-      const role = data?.user?.role;
+
 
       if (!emailVerified) {
         toast.info("Please verify your email to continue.");
         router.push(`/verify-email`);
         return;
-      }
-
-
-      toast.success("Logged in successfully!");
-
-      if (role === "ADMIN") {
-        router.push("/dashboard/admin");
-      } else if (role === "VOLUNTEER") {
-        router.push("/dashboard/volunteer");
       } else {
-        router.push("/dashboard/user");
+        toast.success("Logged in successfully!");
+        router.push("/");
       }
+
+
+
+
+
 
     } catch (err: any) {
       const status = err?.response?.status;

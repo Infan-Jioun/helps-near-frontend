@@ -40,21 +40,26 @@ export const userApi = {
         const res = await axiosInstance.patch(`/api/v1/users/${id}/status`, { status });
         return res.data;
     },
-
-    getMe: async () => {
-        const res = await axiosInstance.get("/api/v1/users/me");
+ deleteUser: async (id: string) => {
+        const res = await axiosInstance.delete(`/api/v1/users/${id}`);
         return res.data;
     },
+    // getMe: async () => {
+    //     const res = await axiosInstance.get("/api/v1/users/me");
+    //     return res.data;
+    // },
 
-    updateMe: async (payload: {
-        name?: string;
-        phone?: string;
-        profileImage?: string;
-        bloodGroup?: string;
-        latitude?: number;
-        longitude?: number;
-    }) => {
-        const res = await axiosInstance.patch("/api/v1/users/me", payload);
-        return res.data;
-    },
+    // updateMe: async (payload: {
+    //     name?: string;
+    //     phone?: string;
+    //     profileImage?: string;
+    //     bloodGroup?: string;
+    //     latitude?: number;
+    //     longitude?: number;
+    // }) => {
+    //     const res = await axiosInstance.patch("/api/v1/users/me", payload);
+    //     return res.data;
+    // },
+   
+
 };

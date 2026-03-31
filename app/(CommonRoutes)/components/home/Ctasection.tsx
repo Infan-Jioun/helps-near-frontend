@@ -31,7 +31,7 @@ export default function CTASection() {
                     <Button
                         size="lg"
                         variant="outline"
-                        className="border-white text-white hover:bg-red-700 px-8 py-6 text-lg rounded-xl gap-2"
+                        className="border-white text-red-500 hover:bg-red-700 hover:text-white px-8 py-6 text-lg rounded-xl gap-2"
                         asChild
                     >
                         <Link href="/emergency">

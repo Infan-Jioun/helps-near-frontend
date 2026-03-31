@@ -20,10 +20,14 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { axiosInstance } from "@/lib/axiosInstance"
 import { EllipsisVerticalIcon, CircleUserRoundIcon, CreditCardIcon, BellIcon, LogOutIcon } from "lucide-react"
+import { usePathname, useRouter } from "next/navigation"
+import { useState } from "react"
 
 export function NavUser({
   user,
+
 }: {
   user: {
     name: string
@@ -32,6 +36,16 @@ export function NavUser({
   }
 }) {
   const { isMobile } = useSidebar()
+  const router = useRouter();
+  const handleLogout = async () => {
+    try {
+      await axiosInstance.post("/api/v1/auth/logout");
+    } catch {
+    } finally {
+      router.push("/login");
+      router.refresh();
+    }
+  };
 
   return (
     <SidebarMenu>
@@ -94,7 +108,7 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onSelect={handleLogout} className="text-red-600 focus:text-red-600 hover:bg-red-50">
               <LogOutIcon
               />
               Log out

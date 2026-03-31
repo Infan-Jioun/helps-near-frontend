@@ -25,7 +25,6 @@ import { adminRoutes } from "@/app/(dashboardRoutes)/dashboard/admin/(routes)/pa
 import { volunteerRoutes } from "@/app/(dashboardRoutes)/dashboard/volunteer/(routes)/page";
 import { userRoutes } from "@/app/(dashboardRoutes)/dashboard/user/(routes)/page";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 type Role = "ADMIN" | "VOLUNTEER" | "USER";
 

@@ -16,7 +16,7 @@ function isAuthRoute(pathname: string): boolean {
 }
 
 interface TokenPayload {
-    userId: string; // 
+    userId: string; 
     role: string;
     email: string;
 }
@@ -33,7 +33,7 @@ async function verifyAccessToken(token: string): Promise<TokenPayload | null> {
 
 
 
-function getDashboardByRole(role: string): string {
+const getDashboardByRole = (role: string): string => {
     switch (role) {
         case "ADMIN": return "/dashboard/admin";
         case "VOLUNTEER": return "/dashboard/volunteer";

@@ -1,7 +1,7 @@
 import React from 'react'
 
-export default function CreateEmargency() {
+export default function CreateEmergency() {
   return (
-    <div>CreateEmargency</div>
+    <div>CreateEmergency</div>
   )
 }

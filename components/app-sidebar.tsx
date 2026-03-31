@@ -21,14 +21,14 @@ import { Settings2Icon, CircleHelpIcon, SearchIcon } from "lucide-react";
 
 import { axiosInstance } from "@/lib/axiosInstance";
 import Logo from "./logo/logo";
-import { adminRoutes } from "@/app/(dashboardRoutes)/dashboard/admin/(routes)/page";
-import { volunteerRoutes } from "@/app/(dashboardRoutes)/dashboard/volunteer/(routes)/page";
-import { userRoutes } from "@/app/(dashboardRoutes)/dashboard/user/(routes)/page";
+import { adminRoutes } from "@/routes/adminRoutes";
+import { volunteerRoutes } from "@/routes/volunteerRoutes";
+import { userRoutes } from "@/routes/userRoutes";
+
 
 
 type Role = "ADMIN" | "VOLUNTEER" | "USER";
 
-// ✅ API: res.data.data = { id, name, email, role, ... } — কোনো nested "user" object নেই
 interface SessionUser {
   id?: string;
   name?: string;

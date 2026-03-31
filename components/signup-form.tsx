@@ -13,6 +13,8 @@ import { Eye, EyeOff, Loader2, CircleAlert, CircleCheck } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { getErrorMessage } from "@/lib/getErrorMessage";
 import Logo from "./logo/logo";
+import { axiosInstance } from "@/lib/axiosInstance";
+import { toast } from "sonner";
 
 export function SignupForm({ className, ...props }: React.ComponentProps<"div">) {
   const router = useRouter();
@@ -54,29 +56,30 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
     try {
       setLoading(true);
 
-      const res = await authClient.signUp.email({
+      const res = await axiosInstance.post("/api/v1/auth/register", {
         name,
         email,
         password,
       });
-
-      if (res.error) {
-        const status = res.error.status;
-        const message = res.error.message || "";
-
-        if (status === 409 || message.toLowerCase().includes("already exists")) {
-          setError("An account with this email already exists.");
-        } else {
-          setError(message || "Something went wrong. Please try again.");
-        }
+      if (res.data.success) {
+           router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+        toast.success("Account created successfully! Please check your email for OTP verification.");
         return;
       }
+      
+
 
       setSuccess("Account created! Please check your email for OTP verification.");
       setTimeout(() => router.push(`/verify-email?email=${encodeURIComponent(email)}`), 2000);
 
     } catch (err: any) {
-      setError(getErrorMessage(err));
+      const status = err?.response?.status;
+      const message = err?.response?.data?.message || "";
+      if (status === 409 || message.toLowerCase().includes("already exists")) {
+        setError("An account with this email already exists.");
+      } else {
+        setError(message || "Something went wrong. Please try again.");
+      }
     } finally {
       setLoading(false);
     }

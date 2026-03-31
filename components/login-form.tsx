@@ -9,10 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {  Eye, EyeOff, Loader2, CircleAlert } from "lucide-react";
-import { authClient } from "@/lib/auth-client";
+import { Eye, EyeOff, Loader2, CircleAlert } from "lucide-react";
 import { getErrorMessage } from "@/lib/getErrorMessage";
 import Logo from "./logo/logo";
+import { axiosInstance } from "@/lib/axiosInstance";
+import { toast } from "sonner";
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
   const router = useRouter();
@@ -44,29 +45,49 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 
     try {
       setLoading(true);
-
-      const res = await authClient.signIn.email({
+      const res = await axiosInstance.post("/api/v1/auth/login", {
         email,
         password,
       });
 
-      if (res.error) {
-        const message = res.error.message || "";
-        if (message.toLowerCase().includes("verify") || message.toLowerCase().includes("email")) {
-          setError("Please verify your email before logging in.");
-        } else if (res.error.status === 401) {
-          setError("Invalid email or password. Please try again.");
-        } else if (res.error.status === 403) {
-          setError("Your account has been blocked. Please contact support.");
-        } else {
-          setError(message || "Something went wrong. Please try again.");
-        }
+      const data = res.data?.data;
+      const emailVerified = data?.user?.emailVerified;
+      const role = data?.user?.role;
+
+      if (!emailVerified) {
+        toast.info("Please verify your email to continue.");
+        router.push(`/verify-email`);
         return;
       }
-        router.push("/");
+
+
+      toast.success("Logged in successfully!");
+
+      if (role === "ADMIN") {
+        router.push("/dashboard/admin");
+      } else if (role === "VOLUNTEER") {
+        router.push("/dashboard/volunteer");
+      } else {
+        router.push("/dashboard/user");
+      }
 
     } catch (err: any) {
-      setError(getErrorMessage(err));
+      const status = err?.response?.status;
+      const message = err?.response?.data?.message || "";
+
+      if (status === 401) {
+        setError("Invalid email or password.");
+      } else if (
+        message.toLowerCase().includes("verify") ||
+        message.toLowerCase().includes("not verified")
+      ) {
+        setError("Please verify your email before logging in.");
+        router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+      } else if (status === 403) {
+        setError("Your account has been blocked. Please contact support.");
+      } else {
+        setError(getErrorMessage(err));
+      }
     } finally {
       setLoading(false);
     }
@@ -88,19 +109,31 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" placeholder="m@example.com" required />
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="m@example.com"
+                required
+              />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
-                {/* <a href="#" className="text-xs text-red-600 hover:underline underline-offset-4">
-                  Forgot your password?
-                </a> */}
-              </div>
+              <Label htmlFor="password">Password</Label>
               <div className="relative">
-                <Input id="password" name="password" placeholder="Provide Your Password" type={showPassword ? "text" : "password"} required className="pr-9" />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                <Input
+                  id="password"
+                  name="password"
+                  placeholder="Provide your password"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  className="pr-9"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
@@ -113,13 +146,23 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
               </div>
             )}
 
-            <Button type="submit" disabled={loading} className="w-full bg-red-600 hover:bg-red-700 text-white mt-1">
-              {loading ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" />Signing in...</>) : "Login"}
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-red-600 hover:bg-red-700 text-white mt-1"
+            >
+              {loading ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Signing in...</>
+              ) : (
+                "Login"
+              )}
             </Button>
 
             <p className="text-center text-sm text-muted-foreground">
               Don&apos;t have an account?{" "}
-              <Link href="/register" className="text-red-600 font-medium hover:underline">Sign up</Link>
+              <Link href="/register" className="text-red-600 font-medium hover:underline">
+                Sign up
+              </Link>
             </p>
           </form>
         </CardContent>
@@ -128,7 +171,8 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       <p className="px-6 text-center text-xs text-muted-foreground">
         By clicking continue, you agree to our{" "}
         <a href="#" className="underline hover:text-red-600">Terms of Service</a>{" "}
-        and <a href="#" className="underline hover:text-red-600">Privacy Policy</a>.
+        and{" "}
+        <a href="#" className="underline hover:text-red-600">Privacy Policy</a>.
       </p>
     </div>
   );

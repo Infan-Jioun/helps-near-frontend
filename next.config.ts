@@ -1,11 +1,19 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  reactCompiler: true,
+
+  // better-auth proxy
   async rewrites() {
     return [
       {
         source: "/api/auth/:path*",
-        destination: "http://localhost:5000/api/auth/:path*",
+        destination: "https://helps-near-backend-blond.vercel.app/auth/:path*",
+      },
+      {
+
+        source: "/api/v1/:path*",
+        destination: "https://helps-near-backend-blond.vercel.app/api/v1/:path*",
       },
     ];
   },

@@ -1,44 +1,75 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, Users, Phone } from "lucide-react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client"
+
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { AlertTriangle, Users, Phone } from "lucide-react"
+import { useEffect, useState } from "react"
+import { authApi } from "@/lib/authApi"
 
 interface Stat {
-    value: string;
-    label: string;
+    value: string
+    label: string
 }
 
-async function getStats(): Promise<Stat[]> {
-    try {
-        const [emergencies, volunteers] = await Promise.all([
-            fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/emergency`, { cache: "no-store" }),
-            fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/volunteer`, { cache: "no-store" }),
-        ]);
-        const emergencyData = await emergencies.json();
-        const volunteerData = await volunteers.json();
-        const totalEmergencies = emergencyData?.meta?.total || 0;
-        const totalVolunteers = volunteerData?.meta?.total || 0;
-        return [
-            { value: `${totalEmergencies}+`, label: "Emergencies Resolved" },
-            { value: `${totalVolunteers}+`, label: "Active Volunteers" },
-            { value: "24/7", label: "Always Available" },
-            { value: "4.9★", label: "Average Rating" },
-        ];
-    } catch {
-        return [
-            { value: "2,400+", label: "Emergencies Resolved" },
-            { value: "850+", label: "Active Volunteers" },
-            { value: "24/7", label: "Always Available" },
-            { value: "4.9★", label: "Average Rating" },
-        ];
-    }
-}
+export default function HeroSection() {
+    const [stats, setStats] = useState<Stat[]>([])
+    const [user, setUser] = useState<any>(null)
+    const [isPending, setIsPending] = useState(true)
 
-export default async function HeroSection() {
-    const stats = await getStats();
+    // Fetch stats on mount
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const [emergenciesRes, volunteersRes] = await Promise.all([
+                    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/emergency`, { cache: "no-store" }),
+                    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/volunteer`, { cache: "no-store" }),
+                ])
+                const emergenciesData = await emergenciesRes.json()
+                const volunteersData = await volunteersRes.json()
+                setStats([
+                    { value: `${emergenciesData?.meta?.total || 2400}+`, label: "Emergencies Resolved" },
+                    { value: `${volunteersData?.meta?.total || 850}+`, label: "Active Volunteers" },
+                    { value: "24/7", label: "Always Available" },
+                    { value: "4.9★", label: "Average Rating" },
+                ])
+            } catch {
+                setStats([
+                    { value: "2,400+", label: "Emergencies Resolved" },
+                    { value: "850+", label: "Active Volunteers" },
+                    { value: "24/7", label: "Always Available" },
+                    { value: "4.9★", label: "Average Rating" },
+                ])
+            }
+        }
+
+        const fetchUser = async () => {
+            setIsPending(true)
+            try {
+                const data = await authApi.getMe()
+                setUser(data?.data || null)
+            } catch {
+                setUser(null)
+            } finally {
+                setIsPending(false)
+            }
+        }
+
+        fetchStats()
+        fetchUser()
+    }, [])
+
+    // Determine dashboard route based on role
+    const dashboardRoute = user?.role === "ADMIN"
+        ? "/dashboard/admin/create-emergency"
+        : user?.role === "VOLUNTEER"
+            ? "/dashboard/volunteer/create-emergency"
+            : "/dashboard/user/create-emergency"
 
     return (
         <section className="relative pt-32 pb-20 overflow-hidden">
+            {/* Background shapes */}
             <div className="absolute inset-0 bg-linear-to-br from-red-50 via-white to-orange-50" />
             <div className="absolute top-20 right-0 w-96 h-96 bg-red-100 rounded-full blur-3xl opacity-30" />
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-orange-100 rounded-full blur-3xl opacity-30" />
@@ -61,8 +92,7 @@ export default async function HeroSection() {
                     </h1>
 
                     <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-                        Connect with verified volunteers in your area during emergencies.
-                        Fast, reliable, and community-driven emergency response system.
+                        Connect with verified volunteers in your area during emergencies. Fast, reliable, and community-driven emergency response system.
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -71,7 +101,7 @@ export default async function HeroSection() {
                             className="bg-red-600 hover:bg-red-700 text-white px-8 py-6 text-lg rounded-xl gap-2 shadow-lg shadow-red-200"
                             asChild
                         >
-                            <Link href="/create-emergency">
+                            <Link href={dashboardRoute}>
                                 <AlertTriangle className="w-5 h-5" strokeWidth={2.5} />
                                 Report Emergency Now
                             </Link>
@@ -107,5 +137,5 @@ export default async function HeroSection() {
                 </div>
             </div>
         </section>
-    );
+    )
 }

@@ -8,15 +8,15 @@ export const userRoutes: Route[] = [
         items: [
             {
                 title: "Create Emergency",
-                url: "/create-emergency",
+                url: "/dashboard/user/create-emergency",
             },
             {
               title : "My Emergencies",
-              url : "/my-emergencies"
+              url : "/dashboard/user/my-emergencies"
             },
             {
                 title: "Payment Management",
-                url: "/payment-management",
+                url: "/dashboard/user/payment-management",
             },
            
         ],

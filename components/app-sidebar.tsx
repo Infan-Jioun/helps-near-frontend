@@ -8,24 +8,16 @@ import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
 
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
+  Sidebar, SidebarContent, SidebarFooter,
+  SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
 import { Settings2Icon, CircleHelpIcon, SearchIcon } from "lucide-react";
-
 import { axiosInstance } from "@/lib/axiosInstance";
 import Logo from "./logo/logo";
 import { adminRoutes } from "@/routes/adminRoutes";
 import { volunteerRoutes } from "@/routes/volunteerRoutes";
 import { userRoutes } from "@/routes/userRoutes";
-
-
 
 type Role = "ADMIN" | "VOLUNTEER" | "USER";
 
@@ -44,7 +36,6 @@ interface NavUserShape {
   email: string;
   avatar: string;
 }
-
 
 const NAV_SECONDARY_ITEMS = [
   { title: "Settings", url: "/settings", icon: <Settings2Icon /> },
@@ -71,56 +62,28 @@ function buildNavUser(user?: SessionUser): NavUserShape {
   };
 }
 
-
-function NavSkeleton() {
-  return (
-    <div className="px-4 py-6 flex flex-col gap-2" aria-busy="true" aria-label="Loading navigation">
-      {Array.from({ length: 4 }, (_, i) => (
-        <div key={i} className="h-8 bg-muted rounded animate-pulse" />
-      ))}
-    </div>
-  );
-}
-
-
-
 function useSession() {
   const [user, setUser] = React.useState<SessionUser | null>(null);
-  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     let cancelled = false;
-
-    const fetchSession = async () => {
-      try {
-        const res = await axiosInstance.get("/api/v1/auth/me");
-        const userData: SessionUser = res.data?.data ?? null;
-
-        if (!cancelled) setUser(userData);
-      } catch {
-        if (!cancelled) setUser(null);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-
-    fetchSession();
+    axiosInstance.get("/api/v1/auth/me")
+      .then((res) => { if (!cancelled) setUser(res.data?.data ?? null); })
+      .catch(() => { if (!cancelled) setUser(null); });
     return () => { cancelled = true; };
   }, []);
 
-  return { user, loading };
+  return { user };
 }
 
-
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
-  const { user, loading } = useSession();
+  const { user } = useSession();
 
   const navMain = React.useMemo(() => getNavRoutes(user?.role), [user?.role]);
   const navUser = React.useMemo(() => buildNavUser(user ?? undefined), [user]);
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
-
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -139,17 +102,14 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
 
       <SidebarContent>
-        {loading ? <NavSkeleton /> : <NavMain items={navMain} />}
+        <NavMain items={navMain} />
 
-        <NavSecondary
-          items={NAV_SECONDARY_ITEMS}
-          className="mt-auto"
-        />
+        {/* <NavSecondary items={NAV_SECONDARY_ITEMS} className="mt-auto" /> */}
       </SidebarContent>
+
       <SidebarFooter>
         <NavUser user={navUser} />
       </SidebarFooter>
-
     </Sidebar>
   );
 }

@@ -15,9 +15,9 @@ const navItems = [
   { title: "User Management", desc: "View & manage users", url: "/dashboard/admin/users-management", icon: Users },
   { title: "Create Emergency", desc: "Post a new alert", url: "/dashboard/admin/create-emergency", icon: AlertCircle },
   { title: "My Emergencies", desc: "Track your posts", url: "/dashboard/admin/my-emergencies", icon: FileText },
-  { title: "Volunteer Mgmt", desc: "Approve volunteers", url: "/dashboard/admin/volunteer-management", icon: Heart },
-  { title: "Payment Mgmt", desc: "Transactions & logs", url: "/dashboard/admin/payment-management", icon: CreditCard },
-  { title: "Emergency Mgmt", desc: "All active cases", url: "/emergency-management", icon: ShieldAlert },
+  { title: "Volunteer Management", desc: "Approve volunteers", url: "/dashboard/admin/volunteer-management", icon: Heart },
+  { title: "Payment Management", desc: "Transactions & logs", url: "/dashboard/admin/payment-management", icon: CreditCard },
+  { title: "Emergency Management", desc: "All active cases", url: "/emergency-management", icon: ShieldAlert },
 ];
 
 const recentActivity = [

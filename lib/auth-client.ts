@@ -2,12 +2,32 @@ import { createAuthClient } from "better-auth/react";
 import { emailOTPClient } from "better-auth/client/plugins";
 
 export const authClient = createAuthClient({
-    baseURL: "http://localhost:5000",
-    plugins: [emailOTPClient()],
-    fetchOptions: {
-        credentials: "include",
-        onResponse(context) {
-            console.log("Better Auth Response:", context.response.headers);
+    //you can pass client configuration here
+    // baseURL: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth`,
+    baseURL: process.env.NEXT_PUBLIC_FRONTEND_URL
+        ? process.env.NEXT_PUBLIC_FRONTEND_URL
+        : "/api/auth",
+    fetchOptions: { credentials: "include" },
+
+    plugins: [
+        {
+            id: "next-cookies-request",
+            fetchPlugins: [
+                {
+                    id: "next-cookies-request-plugin",
+                    name: "next-cookies-request-plugin",
+                    hooks: {
+                        async onRequest(ctx) {
+                            if (typeof window === "undefined") {
+                                const { cookies } = await import("next/headers");
+                                const headers = await cookies();
+                                ctx.headers.set("cookie", headers.toString());
+                            }
+                        },
+                    },
+                },
+            ],
         },
-    },
+        emailOTPClient(),
+    ],
 });

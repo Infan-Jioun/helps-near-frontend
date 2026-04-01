@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { hostname } from "os";
 
 const nextConfig: NextConfig = {
 
@@ -16,7 +17,12 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
-    domains: ["i.ibb.co"],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'i.ibb.co',
+      },
+    ],
   },
 };
 

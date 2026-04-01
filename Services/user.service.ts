@@ -8,7 +8,7 @@ export const userService = {
                 .map(c => `${c.name}=${c.value}`)
                 .join("; ");
 
-            const res = await fetch(`/api/auth/get-session `, {
+            const res = await fetch(`${process.env.AUTH_URL}/get-session`, {
                 headers: {
                     Cookie: allCookies,
                 },

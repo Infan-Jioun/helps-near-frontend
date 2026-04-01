@@ -7,17 +7,17 @@ export const axiosInstance = axios.create({
     withCredentials: true,
 });
 
-axiosInstance.interceptors.response.use(
-    (response) => response,
-    async (error) => {
-        if (error.response?.status === 401) {
-            try {
-                await axiosInstance.post("/api/v1/auth/refresh-token");
-                return axiosInstance(error.config);
-            } catch {
-                window.location.href = "/login";
-            }
-        }
-        return Promise.reject(error);
-    }
-);
+// axiosInstance.interceptors.response.use(
+//     (response) => response,
+//     async (error) => {
+//         if (error.response?.status === 401) {
+//             try {
+//                 await axiosInstance.post("/api/v1/auth/refresh-token");
+//                 return axiosInstance(error.config);
+//             } catch {
+//                 window.location.href = "/login";
+//             }
+//         }
+//         return Promise.reject(error);
+//     }
+// );

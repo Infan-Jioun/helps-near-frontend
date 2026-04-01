@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -28,15 +29,14 @@ import {
     LayoutDashboard,
     Bell,
     Home,
+    AlertTriangle as EmergencyIcon,
 } from "lucide-react";
-import { axiosInstance } from "@/lib/axiosInstance";
 import Logo from "@/components/logo/logo";
 import { authApi } from "@/lib/authApi";
-import { authClient } from "@/lib/auth-client";
 
 const navLinks = [
     { label: "Home", href: "/", icon: Home },
-    { label: "Emergencies", href: "/emergency", icon: AlertTriangle },
+    { label: "Emergencies", href: "/emergency", icon: EmergencyIcon },
     { label: "Volunteers", href: "/volunteers", icon: Users },
     { label: "How It Works", href: "/how-it-works", icon: Heart },
     { label: "Contact", href: "/contact", icon: Phone },
@@ -49,28 +49,29 @@ export default function Navbar() {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [user, setUser] = useState<any>(null);
     const [isPending, setIsPending] = useState(true);
-    const [session, setSession] = useState<any>(null);
 
     useEffect(() => {
-        authApi.getMe()
+        setIsPending(true);
+        authApi
+            .getMe()
             .then((data) => setUser(data?.data || null))
             .catch(() => setUser(null))
             .finally(() => setIsPending(false));
-        
-        authClient.getSession()
-            .then((response: any) => setSession(response?.data || null))
-            .catch(() => setSession(null));
     }, [pathname]);
+
+    useEffect(() => {
+        const onScroll = () => setScrolled(window.scrollY > 20);
+        window.addEventListener("scroll", onScroll);
+        return () => window.removeEventListener("scroll", onScroll);
+    }, []);
 
     const handleLogout = async () => {
         try {
-            await await authApi.logout();
-        } catch {
-        } finally {
-            setUser(null);
-            router.push("/login");
-            router.refresh();
-        }
+            await authApi.logout();
+        } catch { }
+        setUser(null);
+        router.push("/login");
+        router.refresh();
     };
 
     const dashboardRoute =
@@ -79,12 +80,6 @@ export default function Navbar() {
             : user?.role === "VOLUNTEER"
                 ? "/dashboard/volunteer"
                 : "/dashboard/user";
-
-    useEffect(() => {
-        const onScroll = () => setScrolled(window.scrollY > 20);
-        window.addEventListener("scroll", onScroll);
-        return () => window.removeEventListener("scroll", onScroll);
-    }, []);
 
     return (
         <header
@@ -95,8 +90,6 @@ export default function Navbar() {
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
-
-                    {/* Logo */}
                     <Link href="/" className="flex items-center gap-2">
                         <div className="w-8 h-8">
                             <Logo />
@@ -105,11 +98,12 @@ export default function Navbar() {
                             <span className="font-bold text-gray-900 text-base">
                                 Helps<span className="text-red-600">Near</span>
                             </span>
-                            <span className="text-[10px] text-gray-400 uppercase">Emergency Help</span>
+                            <span className="text-[10px] text-gray-400 uppercase">
+                                Emergency Help
+                            </span>
                         </div>
                     </Link>
 
-                    {/* Desktop Nav */}
                     <nav className="hidden md:flex items-center gap-1">
                         {navLinks.map(({ label, href, icon: Icon }) => {
                             const isActive = pathname === href;
@@ -129,9 +123,8 @@ export default function Navbar() {
                         })}
                     </nav>
 
-                    {/* Right Side */}
                     <div className="hidden md:flex items-center gap-3">
-                        {user ? (
+                        {isPending ? (
                             <div className="w-8 h-8 animate-pulse bg-gray-200 rounded-full" />
                         ) : user ? (
                             <>
@@ -170,7 +163,10 @@ export default function Navbar() {
                                             </Link>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem asChild>
-                                            <Link href={dashboardRoute} className="flex items-center gap-2">
+                                            <Link
+                                                href={dashboardRoute}
+                                                className="flex items-center gap-2"
+                                            >
                                                 <LayoutDashboard className="w-4 h-4" />
                                                 Dashboard
                                             </Link>
@@ -191,7 +187,10 @@ export default function Navbar() {
                                 <Button variant="ghost" asChild>
                                     <Link href="/login">Sign In</Link>
                                 </Button>
-                                <Button className="bg-red-600 hover:bg-red-700 text-white rounded-xl gap-2" asChild>
+                                <Button
+                                    className="bg-red-600 hover:bg-red-700 text-white rounded-xl gap-2"
+                                    asChild
+                                >
                                     <Link href="/register">
                                         <AlertTriangle className="w-4 h-4" strokeWidth={2.5} />
                                         Get Help
@@ -201,7 +200,6 @@ export default function Navbar() {
                         )}
                     </div>
 
-                    {/* Mobile Menu */}
                     <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
                         <SheetTrigger asChild>
                             <Button variant="ghost" size="icon" className="md:hidden">
@@ -227,7 +225,9 @@ export default function Navbar() {
                                             </AvatarFallback>
                                         </Avatar>
                                         <div>
-                                            <p className="text-sm font-semibold text-gray-900">{user?.name}</p>
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                {user?.name}
+                                            </p>
                                             <p className="text-xs text-gray-400">{user?.email}</p>
                                         </div>
                                     </div>
@@ -252,7 +252,7 @@ export default function Navbar() {
                                         );
                                     })}
 
-                                    {session && (
+                                    {user && (
                                         <>
                                             <div className="h-px bg-gray-100 my-2" />
                                             <Link
@@ -276,7 +276,9 @@ export default function Navbar() {
                                 </nav>
 
                                 <div className="p-4 border-t border-gray-100 flex flex-col gap-2">
-                                    {user ? (
+                                    {isPending ? (
+                                        <div className="w-full h-9 animate-pulse bg-gray-200 rounded-xl" />
+                                    ) : user ? (
                                         <Button
                                             variant="destructive"
                                             onClick={handleLogout}
@@ -292,7 +294,10 @@ export default function Navbar() {
                                                     Sign In
                                                 </Link>
                                             </Button>
-                                            <Button className="w-full bg-red-600 hover:bg-red-700 text-white rounded-xl gap-2" asChild>
+                                            <Button
+                                                className="w-full bg-red-600 hover:bg-red-700 text-white rounded-xl gap-2"
+                                                asChild
+                                            >
                                                 <Link href="/register" onClick={() => setMobileOpen(false)}>
                                                     <AlertTriangle className="w-4 h-4" strokeWidth={2.5} />
                                                     Get Help
@@ -307,7 +312,6 @@ export default function Navbar() {
                 </div>
             </div>
 
-            {/* Emergency Strip */}
             <div className="bg-red-600 text-white text-center text-xs py-1.5 font-medium">
                 🚨 Emergency? Call{" "}
                 <a href="tel:999" className="underline font-bold">

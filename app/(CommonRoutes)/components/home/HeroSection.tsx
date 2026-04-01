@@ -71,7 +71,7 @@ export default async function HeroSection() {
                             className="bg-red-600 hover:bg-red-700 text-white px-8 py-6 text-lg rounded-xl gap-2 shadow-lg shadow-red-200"
                             asChild
                         >
-                            <Link href="/emergency/create">
+                            <Link href="/create-emergency">
                                 <AlertTriangle className="w-5 h-5" strokeWidth={2.5} />
                                 Report Emergency Now
                             </Link>

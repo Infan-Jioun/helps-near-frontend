@@ -32,6 +32,7 @@ import {
 import { axiosInstance } from "@/lib/axiosInstance";
 import Logo from "@/components/logo/logo";
 import { authApi } from "@/lib/authApi";
+import { authClient } from "@/lib/auth-client";
 
 const navLinks = [
     { label: "Home", href: "/", icon: Home },
@@ -48,18 +49,22 @@ export default function Navbar() {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [user, setUser] = useState<any>(null);
     const [isPending, setIsPending] = useState(true);
-
+    const [session, setSession] = useState<any>(null);
 
     useEffect(() => {
         authApi.getMe()
             .then((data) => setUser(data?.data || null))
             .catch(() => setUser(null))
             .finally(() => setIsPending(false));
-    }, [pathname]); 
+        
+        authClient.getSession()
+            .then((response: any) => setSession(response?.data || null))
+            .catch(() => setSession(null));
+    }, [pathname]);
 
     const handleLogout = async () => {
         try {
-            await  await authApi.logout();
+            await await authApi.logout();
         } catch {
         } finally {
             setUser(null);
@@ -126,7 +131,7 @@ export default function Navbar() {
 
                     {/* Right Side */}
                     <div className="hidden md:flex items-center gap-3">
-                        {isPending ? (
+                        {user ? (
                             <div className="w-8 h-8 animate-pulse bg-gray-200 rounded-full" />
                         ) : user ? (
                             <>
@@ -247,7 +252,7 @@ export default function Navbar() {
                                         );
                                     })}
 
-                                    {user && (
+                                    {session && (
                                         <>
                                             <div className="h-px bg-gray-100 my-2" />
                                             <Link

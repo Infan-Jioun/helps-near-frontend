@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { emergencyApi } from "@/lib/emergencyApi";
 import UpdateEmergencyModal from "./Updateemergencymodal";
 import DeleteEmergencyModal from "./Deleteemergencymodal";
-import Response from "./Response";
+
 
 type EmergencyStatus =
     | "PENDING"

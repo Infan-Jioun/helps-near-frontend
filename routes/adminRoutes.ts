@@ -19,10 +19,6 @@ export const adminRoutes: Route[] = [
                 url: "/dashboard/admin/my-emergencies"
             },
             {
-                title: "Volunteer Management",
-                url: "/dashboard/admin/volunteer-management"
-            },
-            {
                 title: "Payment Management",
                 url: "/dashboard/admin/payment-management",
             },

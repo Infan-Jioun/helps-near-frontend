@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { emergencyApi } from "@/lib/emergencyApi";
 import UpdateEmergencyModal from "./Updateemergencymodal";
 import DeleteEmergencyModal from "./Deleteemergencymodal";
+import Response from "./Response";
 
 type EmergencyStatus =
     | "PENDING"
@@ -158,8 +159,8 @@ function TipModal({
                                         key={amt}
                                         onClick={() => { setSelected(amt); setCustom(""); }}
                                         className={`py-2.5 rounded-xl text-sm font-bold border-2 transition ${selected === amt && !custom
-                                                ? "bg-teal-500 border-teal-500 text-white"
-                                                : "bg-white border-gray-200 text-gray-700 hover:border-teal-300"
+                                            ? "bg-teal-500 border-teal-500 text-white"
+                                            : "bg-white border-gray-200 text-gray-700 hover:border-teal-300"
                                             }`}
                                     >
                                         ৳{amt}
@@ -505,7 +506,10 @@ export default function MyEmergency() {
                                             )}
                                         </div>
                                     )}
-
+                                    <Response
+                                        emergencyId={emergency.id}
+                                        responses={emergency.volunteerResponses}
+                                    />
                                     {/* Divider + Actions */}
                                     <div className="border-t border-gray-100 mt-4 pt-4 flex items-center justify-between gap-3">
                                         <p className="text-xs text-gray-400 font-mono truncate">

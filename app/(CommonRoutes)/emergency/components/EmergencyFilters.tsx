@@ -10,41 +10,24 @@ interface EmergencyFiltersProps {
   type: string;
   status: string;
   isPriority: string;
-  search: string;
   setType: (val: string) => void;
   setStatus: (val: string) => void;
   setIsPriority: (val: string) => void;
-  setSearch: (val: string) => void;
+  
   resetFilters: () => void;
-  handleSearch: (e: React.FormEvent) => void;
   typeConfig: Record<string, any>;
   statusConfig: Record<string, any>;
 }
 
 export default function EmergencyFilters({
-  type, status, isPriority, search,
-  setType, setStatus, setIsPriority, setSearch,
-  resetFilters, handleSearch, typeConfig, statusConfig
+  type, status, isPriority,
+  setType, setStatus, setIsPriority,
+  resetFilters, typeConfig, statusConfig
 }: EmergencyFiltersProps) {
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-6">
       <div className="flex flex-col gap-3">
-        <form onSubmit={handleSearch} className="flex gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              placeholder="Search by district..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 rounded-xl"
-            />
-          </div>
-          <Button type="submit" className="bg-red-600 hover:bg-red-700 text-white rounded-xl gap-2">
-            <Search className="w-4 h-4" />
-            Search
-          </Button>
-        </form>
-
+     
         <div className="flex flex-wrap gap-2">
           <Select value={type} onValueChange={(v) => setType(v)}>
             <SelectTrigger className="w-36 rounded-xl">

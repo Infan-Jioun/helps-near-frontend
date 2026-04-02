@@ -119,7 +119,7 @@ export default function HeroSection() {
                         </Button>
                     </div>
 
-                    <div className="mt-6 flex items-center justify-center gap-2 text-sm text-gray-500">
+                    <div className="mt-6 hidden md:flex items-center justify-center gap-2 text-sm text-gray-500">
                         <Phone className="w-4 h-4 text-red-600" />
                         <span>For life-threatening emergencies, always call</span>
                         <a href="tel:999" className="font-bold text-red-600 hover:underline">999</a>

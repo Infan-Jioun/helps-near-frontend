@@ -15,6 +15,11 @@ export const userRoutes: Route[] = [
               url : `/dashboard/user/my-emergencies`
             },
             {
+              title : "Volunteer Response",
+              url : `/dashboard/user/volunteer-response`
+            },
+          
+            {
                 title: "Payment Management",
                 url: "/dashboard/user/payment-management",
             },

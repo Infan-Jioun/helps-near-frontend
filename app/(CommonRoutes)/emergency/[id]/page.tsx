@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Loader2, MapPin, User, Star, Clock, AlertTriangle } from "lucide-react";
+import { toast } from "sonner";
 import { emergencyApi } from "@/lib/emergencyApi";
 import { volunteerResponseApi } from "@/lib/volunteerResponseApi";
 import {
@@ -66,13 +67,18 @@ export default function EmergencyDetailPage() {
     const [error, setError] = useState<string>("");
     const [volunteering, setVolunteering] = useState(false);
 
+    // Add state for the logged-in user's role
+    const [userRole, setUserRole] = useState<string | null>(null);
+
     const fetchEmergency = async () => {
         try {
             setLoading(true);
             const res = await emergencyApi.getById(id as string);
-            setEmergency(res.data); // API returns {data: {...}}
+            setEmergency(res.data);
         } catch (err: any) {
-            setError("Emergency details load করা সম্ভব হয়নি।");
+            const errorMsg = "Failed to load emergency details.";
+            setError(errorMsg);
+            toast.error(errorMsg);
         } finally {
             setLoading(false);
         }
@@ -83,9 +89,10 @@ export default function EmergencyDetailPage() {
         try {
             setVolunteering(true);
             await volunteerResponseApi.accept(emergency.id);
-            await fetchEmergency(); // refresh data to show volunteer in list
+            toast.success("Successfully volunteered to help!");
+            await fetchEmergency();
         } catch (err: any) {
-            alert("Volunteer করতে সমস্যা হয়েছে।");
+            toast.error("Failed to volunteer. Please try again.");
         } finally {
             setVolunteering(false);
         }
@@ -93,101 +100,153 @@ export default function EmergencyDetailPage() {
 
     useEffect(() => {
         if (id) fetchEmergency();
+
+        // TODO: Replace this with your actual Auth logic (e.g., useSession from NextAuth, context, or API call)
+        // Example: const role = localStorage.getItem("userRole");
+        // For demonstration, setting it manually to "VOLUNTEER"
+        const currentRole = "VOLUNTEER";
+        setUserRole(currentRole);
     }, [id]);
 
-    if (loading)
+    if (loading) {
         return (
-            <div className="flex items-center justify-center h-screen">
+            <div className="flex items-center justify-center h-screen bg-gray-50">
                 <Loader2 className="w-10 h-10 animate-spin text-red-600" />
             </div>
         );
+    }
 
-    if (error || !emergency)
+    if (error || !emergency) {
         return (
-            <div className="flex flex-col items-center justify-center h-screen text-gray-400">
-                <AlertTriangle className="w-12 h-12 mb-4 opacity-30" />
-                <p className="text-lg font-medium">{error || "Emergency পাওয়া যায়নি।"}</p>
-                <Button variant="destructive" className="mt-4" onClick={() => router.back()}>
-                    Back
+            <div className="flex flex-col items-center justify-center h-screen bg-gray-50 text-gray-400">
+                <AlertTriangle className="w-12 h-12 mb-4 text-red-500 opacity-50" />
+                <p className="text-lg font-medium text-gray-600">{error || "Emergency not found."}</p>
+                <Button variant="outline" className="mt-4" onClick={() => router.back()}>
+                    Go Back
                 </Button>
             </div>
         );
+    }
 
     const type = typeConfig[emergency.type] || typeConfig.OTHER;
     const status = statusConfig[emergency.status] || statusConfig.PENDING;
+    const isResolvedOrCancelled = status.label === "Resolved" || status.label === "Cancelled";
 
     return (
-        <div className="min-h-screen bg-gray-50 pt-24 px-4 sm:px-6 lg:px-8">
-            <Card className="max-w-4xl mx-auto rounded-2xl shadow-sm">
-                <CardHeader>
-                    <CardTitle className={`flex items-center gap-2 text-2xl font-bold ${type.color}`}>
-                        {type.label} Emergency {emergency.isPriority && <Star className="w-5 h-5 text-red-500" />}
-                    </CardTitle>
-                    <CardDescription>
-                        <Badge className={`${status.color} px-3 py-1 rounded-xl`}>{status.label}</Badge>
-                    </CardDescription>
+        <div className="min-h-screen bg-gray-50 pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+            <Card className="max-w-4xl mx-auto rounded-2xl shadow-sm border-gray-200">
+                <CardHeader className="border-b bg-white rounded-t-2xl pb-6">
+                    <div className="flex justify-between items-start">
+                        <div className="space-y-1">
+                            <CardTitle className={`flex items-center gap-2 text-2xl font-bold ${type.color}`}>
+                                {type.label} Emergency {emergency.isPriority && <Star className="w-5 h-5 text-red-500 fill-current" />}
+                            </CardTitle>
+                            <CardDescription className="flex items-center gap-2 mt-2">
+                                <Badge variant="secondary" className={`${status.color} px-3 py-1 rounded-full font-medium border-0`}>
+                                    {status.label}
+                                </Badge>
+                                <span className="flex items-center gap-1 text-xs text-gray-500 ml-2">
+                                    <Clock className="w-3.5 h-3.5" />
+                                    {timeAgo(emergency.createdAt)}
+                                </span>
+                            </CardDescription>
+                        </div>
+                    </div>
                 </CardHeader>
 
-                <CardContent className="flex flex-col gap-4">
+                <CardContent className="flex flex-col gap-6 pt-6 bg-white rounded-b-2xl">
+                    {/* Description Section */}
                     <div>
-                        <h2 className="font-semibold text-gray-700 mb-1">Description</h2>
-                        <p>{emergency.description || "কোনো বিবরণ নেই।"}</p>
+                        <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-2">Description</h2>
+                        <p className="text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-xl border border-gray-100">
+                            {emergency.description || "No description available for this emergency."}
+                        </p>
                     </div>
 
-                    <div className="flex items-center gap-2 text-gray-500">
-                        <MapPin className="w-4 h-4" />
-                        <span>{[emergency.address, emergency.district].filter(Boolean).join(", ") || "Location not specified"}</span>
+                    {/* Details Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100">
+                            <MapPin className="w-5 h-5 text-gray-500 mt-0.5" />
+                            <div>
+                                <p className="text-xs font-semibold text-gray-500 uppercase">Location</p>
+                                <p className="text-gray-800 font-medium">
+                                    {[emergency.address, emergency.district].filter(Boolean).join(", ") || "Location not specified"}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100">
+                            <User className="w-5 h-5 text-gray-500 mt-0.5" />
+                            <div>
+                                <p className="text-xs font-semibold text-gray-500 uppercase">Reported By</p>
+                                <p className="text-gray-800 font-medium">
+                                    {emergency.user?.name || "Anonymous"}
+                                    {emergency.user?.phone && <span className="text-gray-500 font-normal ml-1">({emergency.user.phone})</span>}
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="flex items-center gap-4 text-gray-500">
-                        <User className="w-4 h-4" />
-                        <span>Reported by: {emergency.user?.name || "Anonymous"}</span>
-                        {emergency.user?.phone && <span>({emergency.user.phone})</span>}
-                    </div>
-
-                    <div className="flex items-center gap-2 text-gray-400 text-sm">
-                        <Clock className="w-4 h-4" />
-                        <span>Reported: {timeAgo(emergency.createdAt)}</span>
-                    </div>
-
+                    {/* Responders Section */}
                     {emergency.responses?.length > 0 && (
                         <div>
-                            <h2 className="font-semibold mb-2">Volunteers Responded ({emergency.responses.length})</h2>
-                            <ScrollArea className="max-h-40 border rounded-md p-2">
-                                <ul className="list-disc list-inside text-gray-700">
+                            <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-2">
+                                Volunteers Responded ({emergency.responses.length})
+                            </h2>
+                            <ScrollArea className="max-h-40 border border-gray-100 rounded-xl bg-gray-50 p-4">
+                                <ul className="space-y-2">
                                     {emergency.responses.map((r) => (
-                                        <li key={r.id}>{r.name} {r.phone && `(${r.phone})`}</li>
+                                        <li key={r.id} className="flex items-center gap-2 text-gray-700">
+                                            <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                                            <span className="font-medium">{r.name}</span>
+                                            {r.phone && <span className="text-gray-500 text-sm">({r.phone})</span>}
+                                        </li>
                                     ))}
                                 </ul>
                             </ScrollArea>
                         </div>
                     )}
 
+                    {/* Map Section */}
                     {emergency.latitude && emergency.longitude && (
-                        <div className="mt-4 h-64 w-full rounded-xl overflow-hidden">
+                        <div className="mt-2 h-72 w-full rounded-xl overflow-hidden border border-gray-200 shadow-inner">
                             <iframe
                                 width="100%"
                                 height="100%"
                                 loading="lazy"
-                                src={`https://maps.google.com/maps?q=${emergency.latitude},${emergency.longitude}&z=15&output=embed`}
+                                src={`http://googleusercontent.com/maps.google.com/maps?q=${emergency.latitude},${emergency.longitude}&z=15&output=embed`}
                                 title="Emergency Location"
+                                className="border-0"
                             />
                         </div>
                     )}
 
-                    <div className="flex flex-col md:flex-row gap-3 mt-6">
+                    {/* Action Buttons */}
+                    <div className="flex flex-col sm:flex-row gap-3 mt-4 pt-4 border-t border-gray-100">
                         <Button
-                            className="bg-red-600 hover:bg-red-700 text-white flex-1"
+                            variant="outline"
+                            className="flex-1 py-6 text-base font-medium"
                             onClick={() => router.back()}
                         >
-                            Back
+                            Go Back
                         </Button>
+
+
                         <Button
-                            className="bg-green-600 hover:bg-green-700 text-white flex-1"
+                            className="bg-green-600 hover:bg-green-700 text-white flex-1 py-6 text-base font-medium transition-colors"
                             onClick={handleVolunteer}
-                            disabled={volunteering}
+                            disabled={
+                                userRole !== "VOLUNTEER" || volunteering || isResolvedOrCancelled
+                            }
                         >
-                            {volunteering ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : "Volunteer Help"}
+                            {volunteering ? (
+                                <>
+                                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                                    Processing...
+                                </>
+                            ) : (
+                                "Volunteer Help"
+                            )}
                         </Button>
                     </div>
                 </CardContent>

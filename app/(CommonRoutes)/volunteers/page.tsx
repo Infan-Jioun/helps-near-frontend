@@ -213,7 +213,7 @@ function VolunteerCard({ volunteer }: { volunteer: Volunteer }) {
                         className={`flex items-center gap-1 text-[10px] font-medium ${user.isAvailable ? "text-emerald-500" : "text-slate-400"
                             }`}
                     >
-                        {user.isAvailable}
+                        {user.isAvailable }
                     </span>
                 </div>
             </CardFooter>

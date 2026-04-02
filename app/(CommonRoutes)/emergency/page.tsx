@@ -38,7 +38,7 @@ export default function EmergencyPage() {
   const [loading, setLoading] = useState(true);
   const [meta, setMeta] = useState<any>(null);
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
+
   const [type, setType] = useState("ALL");
   const [status, setStatus] = useState("ALL");
   const [district, setDistrict] = useState("");
@@ -68,19 +68,12 @@ export default function EmergencyPage() {
     fetchEmergencies();
   }, [fetchEmergencies]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setPage(1);
-    setDistrict(search);
-    fetchEmergencies();
-  };
 
   const resetFilters = () => {
     setType("ALL");
     setStatus("ALL");
     setDistrict("");
     setIsPriority("ALL");
-    setSearch("");
     setPage(1);
   };
 
@@ -91,13 +84,10 @@ export default function EmergencyPage() {
           type={type}
           status={status}
           isPriority={isPriority}
-          search={search}
           setType={setType}
           setStatus={setStatus}
           setIsPriority={setIsPriority}
-          setSearch={setSearch}
           resetFilters={resetFilters}
-          handleSearch={handleSearch}
           typeConfig={typeConfig}
           statusConfig={statusConfig}
         />

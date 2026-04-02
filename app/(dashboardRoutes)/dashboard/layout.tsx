@@ -5,7 +5,7 @@ import React from "react";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="en">
+    <>
             <body>
                 <TooltipProvider>
                     <SidebarProvider>
@@ -22,6 +22,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     </SidebarProvider>
                 </TooltipProvider>
             </body>
-        </html>
+        </>
     );
 }

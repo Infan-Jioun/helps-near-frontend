@@ -506,10 +506,7 @@ export default function MyEmergency() {
                                             )}
                                         </div>
                                     )}
-                                    <Response
-                                        emergencyId={emergency.id}
-                                        responses={emergency.volunteerResponses}
-                                    />
+                                 
                                     {/* Divider + Actions */}
                                     <div className="border-t border-gray-100 mt-4 pt-4 flex items-center justify-between gap-3">
                                         <p className="text-xs text-gray-400 font-mono truncate">

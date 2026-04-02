@@ -14,7 +14,10 @@ export const emergencyApi = {
         const res = await axiosInstance.post("/api/v1/emergency", payload);
         return res.data;
     },
-
+    getMyEmergencies: async () => {
+        const res = await axiosInstance.get(`/api/v1/emergency/my-emergencies`);
+        return res.data;
+    },
     getAll: async (params?: {
         type?: string;
         status?: string;

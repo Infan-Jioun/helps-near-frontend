@@ -15,7 +15,8 @@ export const emergencyApi = {
         return res.data;
     },
     getMyEmergencies: async () => {
-        const res = await axiosInstance.get(`/api/v1/emergency/my-emergencies`);
+        const res = await axiosInstance.get("/api/v1/emergency/my-emergencies");
+        console.log(res.data)
         return res.data;
     },
     getAll: async (params?: {

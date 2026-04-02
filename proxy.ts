@@ -15,7 +15,6 @@ const publicRoutes = [
 
 const authRoutes = ["/login", "/register", "/verify-email"];
 
-
 const adminRoutes = [
     "/dashboard/admin",
     "/dashboard/admin/users-management",
@@ -41,7 +40,7 @@ const userRoutes = [
     "/payment-management",
 ];
 
-// Helpers
+
 function isPublicRoute(pathname: string) {
     return publicRoutes.some(
         (route) => pathname === route || pathname.startsWith(route + "/")
@@ -51,7 +50,6 @@ function isPublicRoute(pathname: string) {
 function isAuthRoute(pathname: string) {
     return authRoutes.some((route) => pathname.startsWith(route));
 }
-
 
 interface TokenPayload {
     userId: string;
@@ -69,8 +67,7 @@ async function verifyAccessToken(token: string): Promise<TokenPayload | null> {
     }
 }
 
-
-const getDashboardByRole = (role: string) => {
+function getDashboardByRole(role: string): string {
     switch (role) {
         case "ADMIN":
             return "/dashboard/admin";
@@ -79,54 +76,93 @@ const getDashboardByRole = (role: string) => {
         default:
             return "/dashboard/user";
     }
-};
+}
+
 
 export async function proxy(req: NextRequest) {
     const { pathname } = req.nextUrl;
 
-    if (pathname.startsWith("/_next") || pathname.startsWith("/api") || pathname.includes(".")) {
+
+    if (
+        pathname.startsWith("/_next") ||
+        pathname.startsWith("/api") ||
+        pathname.includes(".")
+    ) {
         return NextResponse.next();
     }
 
     const accessToken = req.cookies.get("accessToken")?.value;
     const sessionToken = req.cookies.get("better-auth-session_token")?.value;
 
-
-    if (!accessToken && !sessionToken) {
+   
+    if (!sessionToken) {
         if (isPublicRoute(pathname)) return NextResponse.next();
-        return NextResponse.redirect(new URL(`/login?redirect=${encodeURIComponent(pathname)}`, req.url));
+
+        return NextResponse.redirect(
+            new URL(`/login?redirect=${encodeURIComponent(pathname)}`, req.url)
+        );
     }
 
+  
     let user: TokenPayload | null = null;
-    if (accessToken) user = await verifyAccessToken(accessToken);
+
+    if (accessToken) {
+        user = await verifyAccessToken(accessToken);
+    }
+
 
     if (!user) {
-        if (isAuthRoute(pathname)) return NextResponse.next(); // allow login/register
-        const res = NextResponse.redirect(new URL(`/login?redirect=${encodeURIComponent(pathname)}`, req.url));
+        if (isAuthRoute(pathname)) return NextResponse.next();
+
+        const res = NextResponse.redirect(
+            new URL(`/login?redirect=${encodeURIComponent(pathname)}`, req.url)
+        );
         res.cookies.delete("accessToken");
-        res.cookies.delete("refreshToken");
         res.cookies.delete("better-auth-session_token");
         return res;
     }
+
+   
     if (isAuthRoute(pathname)) {
-        const dashboard = getDashboardByRole(user.role);
-        return NextResponse.redirect(new URL(dashboard, req.url));
+        return NextResponse.redirect(
+            new URL(getDashboardByRole(user.role), req.url)
+        );
     }
 
-    if (adminRoutes.some((r) => pathname.startsWith(r)) && user.role !== "ADMIN") {
-        return NextResponse.redirect(new URL("/unauthorized", req.url));
+
+    if (
+        adminRoutes.some((r) => pathname.startsWith(r)) &&
+        user.role !== "ADMIN"
+    ) {
+        return NextResponse.redirect(
+            new URL(getDashboardByRole(user.role), req.url)
+        );
     }
-    if (volunteerRoutes.some((r) => pathname.startsWith(r)) && !["VOLUNTEER", "ADMIN"].includes(user.role)) {
-        return NextResponse.redirect(new URL("/unauthorized", req.url));
+
+    if (
+        volunteerRoutes.some((r) => pathname.startsWith(r)) &&
+        !["VOLUNTEER", "ADMIN"].includes(user.role)
+    ) {
+        return NextResponse.redirect(
+            new URL(getDashboardByRole(user.role), req.url)
+        );
     }
-    if (userRoutes.some((r) => pathname.startsWith(r)) && !["USER", "VOLUNTEER", "ADMIN"].includes(user.role)) {
-        return NextResponse.redirect(new URL("/unauthorized", req.url));
+
+
+    if (
+        userRoutes.some((r) => pathname.startsWith(r)) &&
+        !["USER", "VOLUNTEER", "ADMIN"].includes(user.role)
+    ) {
+        return NextResponse.redirect(
+            new URL(getDashboardByRole(user.role), req.url)
+        );
     }
 
     return NextResponse.next();
 }
 
-// Middleware matcher
+// ─── Matcher ──────────────────────────────────────────────────────────────────
+
 export const config = {
     matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

@@ -6,6 +6,7 @@ const publicRoutes = [
     "/",
     "/login",
     "/register",
+    "/volunteer-register",
     "/verify-email",
     "/how-it-works",
     "/contact",

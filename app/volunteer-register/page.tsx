@@ -27,6 +27,7 @@ import {
 import { axiosInstance } from "@/lib/axiosInstance";
 import { getErrorMessage } from "@/lib/getErrorMessage";
 import Logo from "@/components/logo/logo";
+import { userApi } from "@/lib/userApi";
 
 const skills = [
     { value: "FIRST_AID", label: "First Aid" },
@@ -62,7 +63,7 @@ export default function VolunteerRegisterForm() {
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Please enter a valid email address.";
         if (!password) return "Password is required.";
         if (password.length < 8) return "Password must be at least 8 characters.";
-        if (selectedSkills.length === 0) return "Please select at least one skill.";
+
         return "";
     };
 
@@ -86,15 +87,15 @@ export default function VolunteerRegisterForm() {
 
         try {
             setLoading(true);
-            await axiosInstance.post("/api/v1/users/create-volunteer", {
+
+            await userApi.createVolunteer({
                 name,
                 email,
                 password,
                 nidNumber: nidNumber || undefined,
                 skills: selectedSkills,
                 bio: bio || undefined,
-            
-            });
+            })
             setSuccess("Volunteer registered successfully! You can now login.");
             setTimeout(() => router.push("/login"), 2000);
         } catch (err: any) {

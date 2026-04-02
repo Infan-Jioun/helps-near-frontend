@@ -20,7 +20,7 @@ interface Volunteer {
 async function getTopVolunteers(): Promise<Volunteer[]> {
     try {
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/volunteer?limit=3&isVerified=true`,
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/volunteer?limit=3&page=1`,
             { cache: "no-store" }
         );
         const data = await res.json();
@@ -29,7 +29,6 @@ async function getTopVolunteers(): Promise<Volunteer[]> {
         return [];
     }
 }
-
 export default async function VolunteersSection() {
     const volunteers = await getTopVolunteers();
 

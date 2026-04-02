@@ -15,8 +15,8 @@ export default function HomePage() {
       <EmergencyTypesSection />
       <HowItWorksSection />
       <FeaturesSection />
-      <VolunteersSection />
       <RecentEmergenciesSection />
+       <VolunteersSection />
       <CTASection />
     </main>
   );

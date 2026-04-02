@@ -8,19 +8,23 @@ export const volunteerRoutes: Route[] = [
         items: [
             {
                 title: "Create Emergency",
-                url: "/create-emergency",
+                url: "/dashboard/volunteer/create-emergency",
             },
+              {
+                  title: "Emergency Responses",
+                    url: "/dashboard/volunteer/emergency-responses",
+              },
             {
                 title: "My Profile",
-                url: "/myprofile",
+                url: "/dashboard/volunteer/myprofile",
             },
             {
                 title: "My Emergencies",
-                url: "/my-emergencies"
+                url: "/dashboard/volunteer/my-emergencies"
             },
             {
                 title: "Payment Management",
-                url: "/payment-management",
+                url: "/dashboard/volunteer/payment-management",
             },
 
         ],

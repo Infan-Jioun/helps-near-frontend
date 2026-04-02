@@ -38,8 +38,6 @@ const navLinks = [
     { label: "Home", href: "/", icon: Home },
     { label: "Emergencies", href: "/emergency", icon: EmergencyIcon },
     { label: "Volunteers", href: "/volunteers", icon: Users },
-    { label: "How It Works", href: "/how-it-works", icon: Heart },
-    { label: "Contact", href: "/contact", icon: Phone },
 ];
 
 export default function Navbar() {

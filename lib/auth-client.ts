@@ -5,8 +5,9 @@ export const authClient = createAuthClient({
     baseURL: process.env.NEXT_PUBLIC_FRONTEND_URL
         ? `${process.env.NEXT_PUBLIC_FRONTEND_URL}/api/auth`
         : "/api/auth",
-    fetchOptions: { credentials: "include" },
 
+    fetchOptions: { credentials: "include" },
+     
     plugins: [
         {
             id: "next-cookies-request",
@@ -28,4 +29,5 @@ export const authClient = createAuthClient({
         },
         emailOTPClient(),
     ],
+
 });

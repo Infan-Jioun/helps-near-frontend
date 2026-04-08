@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import HeroSection from "./components/home/HeroSection";
 import EmergencyTypesSection from "./components/home/EmergencyTypesSection";
 import HowItWorksSection from "./components/home/HowItWorksSection";
@@ -5,14 +9,10 @@ import FeaturesSection from "./components/home/FeaturesSection";
 import VolunteersSection from "./components/home/Volunteerssection";
 import RecentEmergenciesSection from "./components/home/Recentemergenciessection";
 import CTASection from "./components/home/Ctasection";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-
-
-
 
 export default function HomePage() {
-  const router = useRouter()
+  const router = useRouter();
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const accessToken = params.get("accessToken");
@@ -29,6 +29,7 @@ export default function HomePage() {
       router.refresh();
     }
   }, [router]);
+
   return (
     <main className="min-h-screen bg-white">
       <HeroSection />

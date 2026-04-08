@@ -10,11 +10,8 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Loader2, CircleAlert, CircleCheck } from "lucide-react";
-import { authClient } from "@/lib/auth-client";
-import { getErrorMessage } from "@/lib/getErrorMessage";
-import Logo from "./logo/logo";
-import { axiosInstance } from "@/lib/axiosInstance";
 import { toast } from "sonner";
+import Logo from "./logo/logo";
 import { authApi } from "@/lib/authApi";
 
 export function SignupForm({ className, ...props }: React.ComponentProps<"div">) {
@@ -32,7 +29,6 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Please enter a valid email address.";
     if (!password) return "Password is required.";
     if (password.length < 8) return "Password must be at least 8 characters.";
-
     if (password !== confirm) return "Passwords do not match.";
     return "";
   };
@@ -62,12 +58,8 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
         toast.success("Account created successfully! Please check your email for OTP verification.");
         return;
       }
-
-
-
       setSuccess("Account created! Please check your email for OTP verification.");
       setTimeout(() => router.push(`/verify-email?email=${encodeURIComponent(email)}`), 2000);
-
     } catch (err: any) {
       const status = err?.response?.status;
       const message = err?.response?.data?.message || "";
@@ -80,12 +72,11 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
       setLoading(false);
     }
   };
-  const signupWithGoogle = async () => {
-    try {
-      await authClient.signIn.social({ provider: "google" });
-    } catch (err) {
-      toast.error("Google login failed");
-    }
+
+  // Google OAuth redirect
+  const signInWithGoogle = () => {
+    // redirect user to backend Google login route
+    window.location.href = `/api/v1/auth/login/google?redirect=/dashboard`;
   };
 
   return (
@@ -101,7 +92,6 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
 
         <CardContent>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="name">Full Name</Label>
               <Input id="name" name="name" type="text" placeholder="John Doe" required />
@@ -133,9 +123,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
               </div>
             </div>
 
-            <p className="text-xs text-muted-foreground">
-              Min 8 characters with at least one uppercase letter and one number.
-            </p>
+            <p className="text-xs text-muted-foreground">Min 8 characters with at least one uppercase letter and one number.</p>
 
             {error && (
               <div className="flex items-start gap-2 text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg border border-red-100">
@@ -155,46 +143,21 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
               {loading ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" />Creating account...</>) : "Create Account"}
             </Button>
 
+            <Button type="button" onClick={signInWithGoogle} className="w-full mt-2 flex justify-center items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white">
+               Sign up with Google
+            </Button>
+
             <p className="text-center text-sm text-muted-foreground">
               Already have an account?{" "}
               <Link href="/login" className="text-red-600 font-medium hover:underline">Sign in</Link>
             </p>
-            <Link href="/volunteer-register" className="underline font-bold text-center text-red-500 hover:text-red-600 ">Volunteer Registration</Link>
-            <div className="relative my-2">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-muted-foreground">Or continue with</span>
-              </div>
-            </div>
-
-            <Button
-              type="button"
-              onClick={signupWithGoogle}
-              variant="outline"
-              className="w-full flex items-center justify-center gap-2 border-gray-200 hover:bg-gray-50"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 48 48"
-                className="w-5 h-5"
-              >
-                <path fill="#EA4335" d="M24 9.5c3.54 0 6.7 1.22 9.19 3.6l6.85-6.85C35.91 2.36 30.36 0 24 0 14.61 0 6.46 5.48 2.44 13.44l7.98 6.2C12.28 13.1 17.68 9.5 24 9.5z" />
-                <path fill="#4285F4" d="M46.5 24.5c0-1.64-.15-3.22-.43-4.75H24v9h12.65c-.55 2.96-2.21 5.48-4.71 7.18l7.27 5.66C43.93 37.18 46.5 31.36 46.5 24.5z" />
-                <path fill="#FBBC05" d="M10.42 28.64A14.5 14.5 0 0 1 9.5 24c0-1.61.28-3.17.92-4.64l-7.98-6.2A23.94 23.94 0 0 0 0 24c0 3.87.93 7.53 2.44 10.84l7.98-6.2z" />
-                <path fill="#34A853" d="M24 48c6.36 0 11.91-2.09 15.88-5.69l-7.27-5.66c-2.02 1.36-4.6 2.17-8.61 2.17-6.32 0-11.72-3.6-13.58-8.64l-7.98 6.2C6.46 42.52 14.61 48 24 48z" />
-              </svg>
-              Continue with Google
-            </Button>
+            <Link href="/volunteer-register" className="underline font-bold text-center text-red-500 hover:text-red-600">Volunteer Registration</Link>
           </form>
         </CardContent>
       </Card>
 
       <p className="px-6 text-center text-xs text-muted-foreground">
-        By clicking continue, you agree to our{" "}
-        {" "}
-        and <Link href="" className="underline hover:text-red-600">Privacy Policy</Link>.
+        By clicking continue, you agree to our <Link href="" className="underline hover:text-red-600">Privacy Policy</Link>.
       </p>
     </div>
   );

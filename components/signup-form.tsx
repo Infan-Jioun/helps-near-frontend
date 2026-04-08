@@ -75,8 +75,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
 
   // Google OAuth redirect
   const signInWithGoogle = () => {
-    // redirect user to backend Google login route
-    window.location.href = `/api/v1/auth/login/google?redirect=/dashboard`;
+    window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/login/google?redirect=/dashboard`;
   };
 
   return (
@@ -144,7 +143,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
             </Button>
 
             <Button type="button" onClick={signInWithGoogle} className="w-full mt-2 flex justify-center items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white">
-               Sign up with Google
+              Sign up with Google
             </Button>
 
             <p className="text-center text-sm text-muted-foreground">

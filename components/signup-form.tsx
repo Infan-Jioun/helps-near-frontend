@@ -75,7 +75,8 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
 
   // Google OAuth redirect
   const signInWithGoogle = () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/login/google?redirect=/dashboard`;
+    const redirect = encodeURIComponent("/");
+    window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/login/google?redirect=${redirect}`;
   };
 
   return (

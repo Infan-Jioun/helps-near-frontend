@@ -2,9 +2,16 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Loader2, AlertTriangle, ChevronLeft, ChevronRight} from "lucide-react";
+import { Loader2, AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react";
 import { emergencyApi } from "@/lib/emergencyApi";
-import { Flame, Car, Waves, CircleHelp, ShieldAlert, Stethoscope } from "lucide-react";
+import {
+  Flame,
+  Car,
+  Waves,
+  CircleHelp,
+  ShieldAlert,
+  Stethoscope,
+} from "lucide-react";
 import EmergencyCard from "./components/EmergencyCard";
 import EmergencyFilters from "./components/EmergencyFilters";
 
@@ -38,37 +45,50 @@ export default function EmergencyPage() {
   const [emergencies, setEmergencies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [meta, setMeta] = useState<any>(null);
-  const [page, setPage] = useState(1);
 
+  // Filter States
+  const [page, setPage] = useState(1);
   const [type, setType] = useState("ALL");
   const [status, setStatus] = useState("ALL");
   const [district, setDistrict] = useState("");
   const [isPriority, setIsPriority] = useState("ALL");
 
+  // Fetch logic wrapped in useCallback to keep it stable
   const fetchEmergencies = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await emergencyApi.getAll({
+      const query: any = {
         page,
         limit: 9,
-        type: type !== "ALL" ? type : undefined,
-        status: status !== "ALL" ? status : undefined,
-        district: district || undefined,
-        isPriority: isPriority === "true" ? true : isPriority === "false" ? false : undefined,
-      });
+      };
+
+      if (type !== "ALL") query.type = type;
+      if (status !== "ALL") query.status = status;
+      if (district.trim() !== "") query.district = district;
+      if (isPriority === "true") query.isPriority = true;
+      if (isPriority === "false") query.isPriority = false;
+
+      const res = await emergencyApi.getAll(query);
       setEmergencies(res?.data || []);
       setMeta(res?.meta || null);
-    } catch {
+    } catch (error) {
+      console.error("Failed to fetch emergencies:", error);
       setEmergencies([]);
     } finally {
       setLoading(false);
     }
   }, [page, type, status, district, isPriority]);
 
+  // Trigger fetch when any filter or page changes
   useEffect(() => {
     fetchEmergencies();
   }, [fetchEmergencies]);
 
+  // Helper to change filters and reset page simultaneously
+  const handleFilterChange = (setter: (val: any) => void, value: any) => {
+    setter(value);
+    setPage(1); 
+  };
 
   const resetFilters = () => {
     setType("ALL");
@@ -84,10 +104,12 @@ export default function EmergencyPage() {
         <EmergencyFilters
           type={type}
           status={status}
+          district={district}
           isPriority={isPriority}
-          setType={setType}
-          setStatus={setStatus}
-          setIsPriority={setIsPriority}
+          setType={(val) => handleFilterChange(setType, val)}
+          setStatus={(val) => handleFilterChange(setStatus, val)}
+          setDistrict={(val) => handleFilterChange(setDistrict, val)}
+          setIsPriority={(val) => handleFilterChange(setIsPriority, val)}
           resetFilters={resetFilters}
           typeConfig={typeConfig}
           statusConfig={statusConfig}
@@ -104,27 +126,45 @@ export default function EmergencyPage() {
             <p className="text-sm mt-1">Try changing your filters</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {emergencies.map((e) => (
-              <EmergencyCard key={e.id} emergency={e} typeConfig={typeConfig} statusConfig={statusConfig} timeAgo={timeAgo} />
-            ))}
-          </div>
-        )}
-
-        {meta && meta.totalPages > 1 && (
-          <div className="flex items-center justify-between mt-8">
-            <p className="text-sm text-gray-400">
-              Page {meta.page} of {meta.totalPages} — {meta.total} emergencies
-            </p>
-            <div className="flex items-center gap-2">
-              <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="btn-outline btn-sm rounded-xl gap-1">
-                <ChevronLeft className="w-4 h-4" /> Prev
-              </button>
-              <button disabled={page >= meta.totalPages} onClick={() => setPage((p) => p + 1)} className="btn-outline btn-sm rounded-xl gap-1">
-                Next <ChevronRight className="w-4 h-4" />
-              </button>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {emergencies.map((e) => (
+                <EmergencyCard
+                  key={e.id}
+                  emergency={e}
+                  typeConfig={typeConfig}
+                  statusConfig={statusConfig}
+                  timeAgo={timeAgo}
+                />
+              ))}
             </div>
-          </div>
+
+            {meta?.totalPages > 1 && (
+              <div className="flex items-center justify-between mt-8">
+                <p className="text-sm text-gray-400">
+                  Page {meta.page} of {meta.totalPages} — {meta.total} emergencies
+                </p>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    disabled={page <= 1}
+                    onClick={() => setPage((p) => p - 1)}
+                    className="btn-outline btn-sm rounded-xl gap-1 disabled:opacity-50"
+                  >
+                    <ChevronLeft className="w-4 h-4" /> Prev
+                  </button>
+
+                  <button
+                    disabled={page >= meta.totalPages}
+                    onClick={() => setPage((p) => p + 1)}
+                    className="btn-outline btn-sm rounded-xl gap-1 disabled:opacity-50"
+                  >
+                    Next <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

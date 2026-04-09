@@ -16,7 +16,7 @@ export default function HomePage() {
       <HowItWorksSection />
       <FeaturesSection />
       <RecentEmergenciesSection />
-       <VolunteersSection />
+      <VolunteersSection />
       <CTASection />
     </main>
   );

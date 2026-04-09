@@ -23,7 +23,7 @@ export default function CTASection() {
                         className="bg-white text-red-600 hover:bg-red-50 px-8 py-6 text-lg rounded-xl gap-2"
                         asChild
                     >
-                        <Link href="/register">
+                        <Link href="/volunteer-register">
                             <Heart className="w-5 h-5" />
                             Join as Volunteer
                         </Link>

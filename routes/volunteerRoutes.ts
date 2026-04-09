@@ -1,5 +1,12 @@
 import { Route } from "@/lib/routes";
-import { LayoutDashboard } from "lucide-react";
+import {
+    LayoutDashboard,
+    AlertTriangle,
+    ShieldCheck,
+    UserCircle,
+    ClipboardList,
+    CreditCard,
+} from "lucide-react";
 
 export const volunteerRoutes: Route[] = [
     {
@@ -9,24 +16,28 @@ export const volunteerRoutes: Route[] = [
             {
                 title: "Create Emergency",
                 url: "/dashboard/volunteer/create-emergency",
+                icon: AlertTriangle,
             },
-              {
-                  title: "Emergency Responses",
-                    url: "/dashboard/volunteer/emergency-responses",
-              },
+            {
+                title: "Emergency Responses",
+                url: "/dashboard/volunteer/emergency-responses",
+                icon: ShieldCheck,
+            },
             {
                 title: "My Profile",
                 url: "/dashboard/volunteer/myprofile",
+                icon: UserCircle,
             },
             {
                 title: "My Emergencies",
-                url: "/dashboard/volunteer/my-emergencies"
+                url: "/dashboard/volunteer/my-emergencies",
+                icon: ClipboardList,
             },
             {
                 title: "Payment Management",
                 url: "/dashboard/volunteer/payment-management",
+                icon: CreditCard,
             },
-
         ],
     },
 ];

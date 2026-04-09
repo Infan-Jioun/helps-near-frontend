@@ -6,5 +6,6 @@ export type Route = {
     items: {
         title: string;
         url: string;
+        icon: LucideIcon
     }[];
 };

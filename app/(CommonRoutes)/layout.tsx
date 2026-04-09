@@ -11,7 +11,7 @@ export default function commonLayout({
         <html lang="en">
             <body>
                 <Navbar />
-                <main className="pt-7 md:pt-12 mb-10">{children}</main>
+                <main>{children}</main>
                 <Footer />
             </body>
         </html>

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -9,25 +8,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import {
-    AlertTriangle,
-    Eye,
-    EyeOff,
-    Loader2,
-    CircleAlert,
-    CircleCheck,
-    Heart,
-    Shield,
-    User,
-    Mail,
-    Lock,
-    CreditCard,
-    FileText,
-    MapPin,
+    Eye, EyeOff, Loader2, CircleAlert, CircleCheck,
+    Heart, Shield, User, Mail, Lock, CreditCard,
+    FileText, MapPin, BanknoteIcon,
 } from "lucide-react";
-import { axiosInstance } from "@/lib/axiosInstance";
 import { getErrorMessage } from "@/lib/getErrorMessage";
 import Logo from "@/components/logo/logo";
 import { userApi } from "@/lib/userApi";
+import { toast } from "sonner";
 
 const skills = [
     { value: "FIRST_AID", label: "First Aid" },
@@ -45,6 +33,7 @@ export default function VolunteerRegisterForm() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+    const [isFree, setIsFree] = useState(false);
 
     const toggleSkill = (skill: string) => {
         setSelectedSkills((prev) =>
@@ -56,6 +45,7 @@ export default function VolunteerRegisterForm() {
         name: string,
         email: string,
         password: string,
+        fee: string,
     ): string => {
         if (!name.trim()) return "Full name is required.";
         if (name.trim().length < 2) return "Name must be at least 2 characters.";
@@ -63,7 +53,11 @@ export default function VolunteerRegisterForm() {
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Please enter a valid email address.";
         if (!password) return "Password is required.";
         if (password.length < 8) return "Password must be at least 8 characters.";
-
+        // ✅ fee validation
+        if (!isFree) {
+            if (!fee) return "Service fee is required.";
+            if (isNaN(Number(fee)) || Number(fee) < 0) return "Please enter a valid fee amount.";
+        }
         return "";
     };
 
@@ -78,8 +72,9 @@ export default function VolunteerRegisterForm() {
         const password = (form.elements.namedItem("password") as HTMLInputElement).value;
         const nidNumber = (form.elements.namedItem("nidNumber") as HTMLInputElement).value;
         const bio = (form.elements.namedItem("bio") as HTMLTextAreaElement).value;
+        const fee = (form.elements.namedItem("fee") as HTMLInputElement).value;
 
-        const validationError = validateForm(name, email, password);
+        const validationError = validateForm(name, email, password, fee);
         if (validationError) {
             setError(validationError);
             return;
@@ -87,18 +82,24 @@ export default function VolunteerRegisterForm() {
 
         try {
             setLoading(true);
-
-            await userApi.createVolunteer({
+            const res = await userApi.createVolunteer({
                 name,
                 email,
                 password,
                 nidNumber: nidNumber || undefined,
                 skills: selectedSkills,
                 bio: bio || undefined,
-            })
+                fee: isFree ? 0 : Number(fee),
+                isFree,
+            });
+            if (res.data.success) {
+                router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+                toast.success("Account created successfully! Please check your email for OTP verification.");
+                return;
+            }
             setSuccess("Volunteer registered successfully! You can now login.");
-            setTimeout(() => router.push("/login"), 2000);
-        } catch (err: any) {
+            setTimeout(() => router.push(`/verify-email?email=${encodeURIComponent(email)}`), 2000);
+        } catch (err: unknown) {
             setError(getErrorMessage(err));
         } finally {
             setLoading(false);
@@ -116,12 +117,8 @@ export default function VolunteerRegisterForm() {
                             <Logo />
                         </div>
                     </div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                        Become a Volunteer
-                    </h1>
-                    <p className="text-gray-500">
-                        Join our community and help people in need
-                    </p>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Become a Volunteer</h1>
+                    <p className="text-gray-500">Join our community and help people in need</p>
                 </div>
 
                 <Card className="border-red-100 shadow-sm">
@@ -186,9 +183,65 @@ export default function VolunteerRegisterForm() {
                                 <Label htmlFor="nidNumber" className="flex items-center gap-1.5">
                                     <CreditCard className="w-3.5 h-3.5 text-gray-400" />
                                     NID Number
-                                    <span className="text-xs text-gray-400 font-normal">(Optional)</span>
+                                    
                                 </Label>
                                 <Input id="nidNumber" name="nidNumber" type="text" placeholder="1234567890" />
+                            </div>
+
+                            {/* ✅ Fee Section */}
+                            <div className="flex flex-col gap-2">
+                                <Label className="flex items-center gap-1.5">
+                                    <BanknoteIcon className="w-3.5 h-3.5 text-gray-400" />
+                                    Service Fee
+                                    <span className="text-xs text-red-500">*</span>
+                                </Label>
+
+                                {/* isFree Toggle */}
+                                <div className="flex items-center gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsFree(!isFree)}
+                                        className={`relative w-11 h-6 rounded-full transition-colors ${isFree ? "bg-red-600" : "bg-gray-200"
+                                            }`}
+                                    >
+                                        <span
+                                            className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${isFree ? "translate-x-6" : "translate-x-1"
+                                                }`}
+                                        />
+                                    </button>
+                                    <span className="text-sm text-gray-600">
+                                        {isFree ? (
+                                            <span className="text-green-600 font-medium">I will serve for free ✓</span>
+                                        ) : (
+                                            "I charge a service fee"
+                                        )}
+                                    </span>
+                                </div>
+
+                                {/* Fee Input - isFree হলে hide */}
+                                {!isFree && (
+                                    <div className="relative">
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-medium">
+                                            ৳
+                                        </span>
+                                        <Input
+                                            id="fee"
+                                            name="fee"
+                                            type="number"
+                                            min="0"
+                                            step="1"
+                                            placeholder="e.g. 500"
+                                            className="pl-7"
+                                            required={!isFree}
+                                        />
+                                    </div>
+                                )}
+
+                                <p className="text-xs text-gray-400">
+                                    {isFree
+                                        ? "You have chosen to volunteer without any charge."
+                                        : "Enter the amount you charge per emergency response in BDT."}
+                                </p>
                             </div>
 
                             {/* Skills */}
@@ -240,7 +293,7 @@ export default function VolunteerRegisterForm() {
                                 />
                             </div>
 
-                            {/* Info Box */}
+                            {/* Location Info */}
                             <div className="flex items-start gap-3 bg-blue-50 border border-blue-100 rounded-xl p-4">
                                 <MapPin className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
                                 <div>
@@ -279,9 +332,7 @@ export default function VolunteerRegisterForm() {
 
                             <p className="text-center text-sm text-muted-foreground">
                                 Already a volunteer?{" "}
-                                <a href="/login" className="text-red-600 font-medium hover:underline">
-                                    Sign in
-                                </a>
+                                <a href="/login" className="text-red-600 font-medium hover:underline">Sign in</a>
                             </p>
                         </form>
                     </CardContent>

@@ -3,10 +3,13 @@ import { axiosInstance } from "@/lib/axiosInstance";
 export const volunteerApi = {
 
     getAllVolunteers: async (params?: {
-        searchTerm?: string;
-        isVerified?: boolean;
         page?: number;
         limit?: number;
+        searchTerm?: string;
+        isVerified?: boolean;
+        isAvailable?: boolean;
+        
+        isFree?: boolean;
     }) => {
         const res = await axiosInstance.get("/api/v1/volunteer", { params });
         return res.data;
@@ -37,7 +40,7 @@ export const volunteerApi = {
         return res.data;
     },
 
-  
+
     verifyVolunteer: async (userId: string, isVerified: boolean) => {
         const res = await axiosInstance.patch(`/api/v1/volunteer/${userId}`, { isVerified });
         return res.data;

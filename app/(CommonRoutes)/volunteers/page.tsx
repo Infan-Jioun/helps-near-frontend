@@ -30,20 +30,23 @@ import {
     Users,
     ChevronLeft,
     ChevronRight,
+    BanknoteIcon,
 } from "lucide-react";
 import { volunteerApi } from "@/lib/volunteerapi";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ─── Types ───────────────────────────────────────────────────────────────────
 interface VolunteerUser {
     id: string;
     name: string;
     email: string;
     phone?: string;
     profileImage?: string;
-    isAvailable: boolean;
+    isAvailable?: boolean;
     bloodGroup?: string;
     latitude?: number;
     longitude?: number;
+    fee?: number;      // ✅ যোগ করা হয়েছে
+    isFree?: boolean;  // ✅ যোগ করা হয়েছে
 }
 
 interface Volunteer {
@@ -53,17 +56,63 @@ interface Volunteer {
     skills: string[];
     isVerified: boolean;
     averageRating: number;
+    totalHelped: number;
+    fee?: number;      // ✅ optional করা হয়েছে
+    isFree?: boolean;  // ✅ optional করা হয়েছে
     user: VolunteerUser;
 }
 
+// ✅ Fix: backend থেকে আসে totalPages (service-এ Math.ceil দিয়ে তৈরি)
+// কিন্তু controller-এ totalPage নামে পাঠানো হয়।
+// তাই দুটোই রাখা হয়েছে যাতে যেকোনো case handle হয়
 interface Meta {
     page: number;
     limit: number;
     total: number;
-    totalPages: number;
+    totalPages?: number;  // service থেকে সরাসরি
+    totalPage?: number;   // controller থেকে rename করা
 }
 
-// ─── Skeleton ─────────────────────────────────────────────────────────────────
+interface VolunteerParams {
+    page?: number;
+    limit?: number;
+    searchTerm?: string;
+    isVerified?: boolean;
+    isAvailable?: boolean;
+    isFree?: boolean;
+}
+
+// ─── Helper: meta থেকে totalPages বের করা ────────────────────────────────
+function getTotalPages(meta: Meta): number {
+    return meta.totalPages ?? meta.totalPage ?? 1;
+}
+
+// ─── Helper: Smart Pagination with dots ──────────────────────────────────
+function getPaginationPages(currentPage: number, totalPages: number): (number | "...")[] {
+    const delta = 2;
+    const range: number[] = [];
+    const result: (number | "...")[] = [];
+
+    for (
+        let i = Math.max(2, currentPage - delta);
+        i <= Math.min(totalPages - 1, currentPage + delta);
+        i++
+    ) {
+        range.push(i);
+    }
+
+    if (currentPage - delta > 2) result.push(1, "...");
+    else result.push(1);
+
+    result.push(...range);
+
+    if (currentPage + delta < totalPages - 1) result.push("...", totalPages);
+    else if (totalPages > 1) result.push(totalPages);
+
+    return result;
+}
+
+// ─── Skeleton ────────────────────────────────────────────────────────────────
 function VolunteerCardSkeleton() {
     return (
         <Card className="border-red-100 bg-white overflow-hidden">
@@ -91,9 +140,13 @@ function VolunteerCardSkeleton() {
     );
 }
 
-// ─── Card ─────────────────────────────────────────────────────────────────────
+// ─── Card ────────────────────────────────────────────────────────────────────
 function VolunteerCard({ volunteer }: { volunteer: Volunteer }) {
-    const { user, skills, isVerified, averageRating, bio } = volunteer;
+    const { user, skills, isVerified, averageRating, totalHelped, bio } = volunteer;
+
+    // ✅ fee ও isFree — volunteer object থেকে নাও, না থাকলে user থেকে fallback
+    const fee = volunteer.fee ?? user.fee ?? 0;
+    const isFree = volunteer.isFree ?? user.isFree ?? false;
 
     const initials = user.name
         .split(" ")
@@ -104,27 +157,22 @@ function VolunteerCard({ volunteer }: { volunteer: Volunteer }) {
 
     return (
         <Card className="group border-red-100 bg-white hover:border-red-300 hover:shadow-lg hover:shadow-red-50 transition-all duration-300 overflow-hidden relative">
-            {/* accent bar */}
-            <div
-                className={`absolute top-0 left-0 right-0 h-0.5 ${isVerified
-                        ? "bg-linear-to-r from-red-500 to-rose-400"
-                        : "bg-linear-to-r from-amber-400 to-orange-300"
-                    }`}
-            />
+            <div className={`absolute top-0 left-0 right-0 h-0.5 ${isVerified
+                ? "bg-gradient-to-r from-red-500 to-rose-400"
+                : "bg-gradient-to-r from-amber-400 to-orange-300"
+                }`} />
 
             <CardHeader className="pb-2 pt-5">
                 <div className="flex items-start gap-3">
                     <div className="relative shrink-0">
                         <Avatar className="h-14 w-14 rounded-2xl border-2 border-red-50 ring-2 ring-transparent group-hover:ring-red-100 transition-all">
-                            <AvatarImage src={user.profileImage} alt={user.name} />
+                            <AvatarImage src={user.profileImage ?? ""} alt={user.name} />
                             <AvatarFallback className="rounded-2xl bg-red-600 text-white text-sm font-bold">
                                 {initials}
                             </AvatarFallback>
                         </Avatar>
-                        <span
-                            className={`absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white ${user.isAvailable ? "bg-emerald-400" : "bg-slate-300"
-                                }`}
-                        />
+                        <span className={`absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white ${user.isAvailable ? "bg-emerald-400" : "bg-slate-300"
+                            }`} />
                     </div>
 
                     <div className="flex-1 min-w-0">
@@ -136,7 +184,6 @@ function VolunteerCard({ volunteer }: { volunteer: Volunteer }) {
                         {user.phone && (
                             <p className="text-xs text-slate-400 truncate">{user.phone}</p>
                         )}
-
                         <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                             {Number(averageRating) > 0 && (
                                 <span className="flex items-center gap-0.5 text-xs font-semibold text-amber-500">
@@ -147,7 +194,7 @@ function VolunteerCard({ volunteer }: { volunteer: Volunteer }) {
                             {user.bloodGroup && (
                                 <span className="flex items-center gap-0.5 text-xs text-red-500 font-semibold">
                                     <Droplets className="h-3 w-3" />
-                                    {user.bloodGroup}
+                                    {user.bloodGroup.replace(/_/g, " ")}
                                 </span>
                             )}
                             {user.latitude && user.longitude && (
@@ -173,7 +220,7 @@ function VolunteerCard({ volunteer }: { volunteer: Volunteer }) {
                                 variant="secondary"
                                 className="text-[10px] px-2 py-0 h-5 bg-red-50 text-red-700 border-red-100 font-medium rounded-full"
                             >
-                                {skill}
+                                {skill.replace(/_/g, " ")}
                             </Badge>
                         ))}
                         {skills.length > 4 && (
@@ -190,36 +237,54 @@ function VolunteerCard({ volunteer }: { volunteer: Volunteer }) {
 
             <CardFooter className="pt-2 pb-4">
                 <div className="flex items-center justify-between w-full">
-                    <Badge
-                        className={`text-[10px] px-2.5 py-0.5 rounded-full font-semibold border-0 ${isVerified
-                                ? "bg-red-50 text-red-600"
-                                : "bg-amber-50 text-amber-600"
-                            }`}
-                    >
-                        {isVerified ? (
-                            <span className="flex items-center gap-1">
-                                <ShieldCheck className="h-3 w-3" /> Verified
+                    <div className="flex items-center gap-2">
+                        <Badge className={`text-[10px] px-2.5 py-0.5 rounded-full font-semibold border-0 ${isVerified
+                            ? "bg-red-50 text-red-600"
+                            : "bg-amber-50 text-amber-600"
+                            }`}>
+                            {isVerified ? (
+                                <span className="flex items-center gap-1">
+                                    <ShieldCheck className="h-3 w-3" /> Verified
+                                </span>
+                            ) : (
+                                <span className="flex items-center gap-1">
+                                    <Clock className="h-3 w-3" /> Pending
+                                </span>
+                            )}
+                        </Badge>
+
+                        {/* ✅ isFree সঠিকভাবে কাজ করবে এখন */}
+                        {isFree ? (
+                            <span className="flex items-center gap-1 text-[10px] bg-green-50 text-green-700 px-2.5 py-0.5 rounded-full font-semibold border border-green-100">
+                                <BanknoteIcon className="h-3 w-3" />
+                                Free
                             </span>
                         ) : (
-                            <span className="flex items-center gap-1">
-                                <Clock className="h-3 w-3" /> Pending
+                            <span className="flex items-center gap-1 text-[10px] bg-blue-50 text-blue-700 px-2.5 py-0.5 rounded-full font-semibold border border-blue-100">
+                                <BanknoteIcon className="h-3 w-3" />
+                                ৳{fee.toLocaleString()}
                             </span>
                         )}
-                    </Badge>
+                    </div>
 
-                    <span
-                        className={`flex items-center gap-1 text-[10px] font-medium ${user.isAvailable ? "text-emerald-500" : "text-slate-400"
-                            }`}
-                    >
-                        {user.isAvailable }
-                    </span>
+                    <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-slate-400">
+                            {totalHelped ?? 0} helped
+                        </span>
+                        <span className={`flex items-center gap-1 text-[10px] font-medium ${user.isAvailable ? "text-emerald-500" : "text-slate-400"
+                            }`}>
+                            <span className={`h-1.5 w-1.5 rounded-full ${user.isAvailable ? "bg-emerald-400" : "bg-slate-300"
+                                }`} />
+                            {user.isAvailable || "Available"}
+                        </span>
+                    </div>
                 </div>
             </CardFooter>
         </Card>
     );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+// ─── Page ────────────────────────────────────────────────────────────────────
 export default function Volunteers() {
     const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
     const [meta, setMeta] = useState<Meta | null>(null);
@@ -229,29 +294,26 @@ export default function Volunteers() {
     const [debouncedSearch, setDebouncedSearch] = useState("");
     const [isVerified, setIsVerified] = useState("all");
     const [isAvailable, setIsAvailable] = useState("all");
+    const [isFree, setIsFree] = useState("all");
     const [page, setPage] = useState(1);
     const LIMIT = 12;
 
-    // debounce
     useEffect(() => {
         const t = setTimeout(() => setDebouncedSearch(search), 400);
         return () => clearTimeout(t);
     }, [search]);
 
-    // reset page on filter change
-    useEffect(() => { setPage(1); }, [debouncedSearch, isVerified, isAvailable]);
+    useEffect(() => { setPage(1); }, [debouncedSearch, isVerified, isAvailable, isFree]);
 
     const load = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
-            const params: Parameters<typeof volunteerApi.getAllVolunteers>[0] = {
-                page,
-                limit: LIMIT,
-            };
+            const params: VolunteerParams = { page, limit: LIMIT };
             if (debouncedSearch) params.searchTerm = debouncedSearch;
             if (isVerified !== "all") params.isVerified = isVerified === "true";
-           
+            if (isAvailable !== "all") params.isAvailable = isAvailable === "true";
+            if (isFree !== "all") params.isFree = isFree === "true";
 
             const res = await volunteerApi.getAllVolunteers(params);
             setVolunteers(res.data ?? []);
@@ -261,19 +323,19 @@ export default function Volunteers() {
         } finally {
             setLoading(false);
         }
-    }, [page, debouncedSearch, isVerified]);
+    }, [page, debouncedSearch, isVerified, isAvailable, isFree]);
 
     useEffect(() => { load(); }, [load]);
 
-    return (
-        <div className="mt-28 min-h-screen bg-linear-to-br from-red-50/40 via-white to-rose-50/20">
+    const totalPages = meta ? getTotalPages(meta) : 1;
 
-            {/* ── Sticky Header ── */}
+    return (
+        <div className="mt-28 min-h-screen bg-gradient-to-br from-red-50/40 via-white to-rose-50/20">
+
             <div className="bg-white border-b border-red-100 sticky top-0 z-10 shadow-sm shadow-red-50/60">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
                     <div className="flex items-center justify-between flex-wrap gap-3">
 
-                        {/* Title */}
                         <div className="flex items-center gap-3">
                             <div className="h-10 w-10 rounded-xl bg-red-600 flex items-center justify-center shadow-md shadow-red-200">
                                 <Users className="h-5 w-5 text-white" />
@@ -288,7 +350,6 @@ export default function Volunteers() {
                             </div>
                         </div>
 
-                        {/* Filters */}
                         <div className="flex items-center gap-2 flex-wrap">
                             <div className="relative">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
@@ -318,7 +379,18 @@ export default function Volunteers() {
                                 <SelectContent>
                                     <SelectItem value="all">All</SelectItem>
                                     <SelectItem value="true">Available</SelectItem>
-                                   
+                                    <SelectItem value="false">Busy</SelectItem>
+                                </SelectContent>
+                            </Select>
+
+                            <Select value={isFree} onValueChange={setIsFree}>
+                                <SelectTrigger className="h-9 w-32 text-xs border-red-100 bg-red-50/40 focus:ring-red-400">
+                                    <SelectValue placeholder="Fee" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Fee</SelectItem>
+                                    <SelectItem value="true">Free</SelectItem>
+                                    <SelectItem value="false">Paid</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -327,8 +399,6 @@ export default function Volunteers() {
             </div>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-
-             
                 {error && (
                     <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700 flex items-center gap-3">
                         <span><span className="font-semibold">Error:</span> {error}</span>
@@ -343,7 +413,6 @@ export default function Volunteers() {
                     </div>
                 )}
 
-                {/* Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {loading
                         ? Array.from({ length: LIMIT }).map((_, i) => <VolunteerCardSkeleton key={i} />)
@@ -361,14 +430,14 @@ export default function Volunteers() {
                     }
                 </div>
 
-                {/* Pagination */}
-                {meta && meta.totalPages > 1 && (
+                {/* ✅ Fix: totalPages এখন getTotalPages() দিয়ে নেওয়া হচ্ছে */}
+                {meta && totalPages > 1 && (
                     <>
                         <Separator className="my-6 bg-red-50" />
                         <div className="flex items-center justify-between">
                             <p className="text-xs text-slate-400">
                                 Page <span className="font-semibold text-slate-600">{meta.page}</span> of{" "}
-                                <span className="font-semibold text-slate-600">{meta.totalPages}</span>
+                                <span className="font-semibold text-slate-600">{totalPages}</span>
                                 {" "}— {meta.total} volunteers
                             </p>
 
@@ -383,25 +452,35 @@ export default function Volunteers() {
                                     <ChevronLeft className="h-4 w-4 text-red-500" />
                                 </Button>
 
-                                {Array.from({ length: Math.min(meta.totalPages, 5) }, (_, i) => i + 1).map((p) => (
-                                    <Button
-                                        key={p}
-                                        variant={page === p ? "default" : "outline"}
-                                        size="sm"
-                                        onClick={() => setPage(p)}
-                                        className={`h-8 w-8 p-0 text-xs font-semibold ${page === p
+                                {/* ✅ Fix: Smart pagination — current page > 5 হলেও কাজ করবে */}
+                                {getPaginationPages(page, totalPages).map((p, idx) =>
+                                    p === "..." ? (
+                                        <span
+                                            key={`dots-${idx}`}
+                                            className="text-xs text-slate-400 px-1"
+                                        >
+                                            …
+                                        </span>
+                                    ) : (
+                                        <Button
+                                            key={p}
+                                            variant={page === p ? "default" : "outline"}
+                                            size="sm"
+                                            onClick={() => setPage(p as number)}
+                                            className={`h-8 w-8 p-0 text-xs font-semibold ${page === p
                                                 ? "bg-red-600 hover:bg-red-700 border-red-600 text-white shadow-sm shadow-red-200"
                                                 : "border-red-100 hover:bg-red-50 text-slate-600"
-                                            }`}
-                                    >
-                                        {p}
-                                    </Button>
-                                ))}
+                                                }`}
+                                        >
+                                            {p}
+                                        </Button>
+                                    )
+                                )}
 
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    disabled={page >= meta.totalPages}
+                                    disabled={page >= totalPages}
                                     onClick={() => setPage((p) => p + 1)}
                                     className="h-8 w-8 p-0 border-red-100 hover:bg-red-50 hover:border-red-300 disabled:opacity-40"
                                 >

@@ -10,6 +10,8 @@ export const userApi = {
         bio?: string;
         latitude?: number;
         longitude?: number;
+        fee: number;
+        isFree?: boolean;
     }) => {
         const res = await axiosInstance.post("/api/v1/users/create-volunteer", payload);
         return res.data;
@@ -40,7 +42,7 @@ export const userApi = {
         const res = await axiosInstance.patch(`/api/v1/users/${id}/status`, { status });
         return res.data;
     },
- deleteUser: async (id: string) => {
+    deleteUser: async (id: string) => {
         const res = await axiosInstance.delete(`/api/v1/users/${id}`);
         return res.data;
     },
@@ -60,6 +62,6 @@ export const userApi = {
     //     const res = await axiosInstance.patch("/api/v1/users/me", payload);
     //     return res.data;
     // },
-   
+
 
 };

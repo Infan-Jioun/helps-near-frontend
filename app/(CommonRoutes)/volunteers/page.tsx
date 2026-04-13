@@ -30,8 +30,6 @@ import {
     Users,
     ChevronLeft,
     ChevronRight,
-    Wifi,
-    WifiOff,
 } from "lucide-react";
 import { volunteerApi } from "@/lib/volunteerapi";
 
@@ -109,8 +107,8 @@ function VolunteerCard({ volunteer }: { volunteer: Volunteer }) {
             {/* accent bar */}
             <div
                 className={`absolute top-0 left-0 right-0 h-0.5 ${isVerified
-                        ? "bg-gradient-to-r from-red-500 to-rose-400"
-                        : "bg-gradient-to-r from-amber-400 to-orange-300"
+                        ? "bg-linear-to-r from-red-500 to-rose-400"
+                        : "bg-linear-to-r from-amber-400 to-orange-300"
                     }`}
             />
 
@@ -268,7 +266,7 @@ export default function Volunteers() {
     useEffect(() => { load(); }, [load]);
 
     return (
-        <div className="mt-28 min-h-screen bg-gradient-to-br from-red-50/40 via-white to-rose-50/20">
+        <div className="mt-28 min-h-screen bg-linear-to-br from-red-50/40 via-white to-rose-50/20">
 
             {/* ── Sticky Header ── */}
             <div className="bg-white border-b border-red-100 sticky top-0 z-10 shadow-sm shadow-red-50/60">

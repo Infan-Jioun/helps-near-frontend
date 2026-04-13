@@ -16,7 +16,8 @@
 [🌐 Live Demo](https://helps-near-frontend.vercel.app/) · [🐛 Report Bug](https://github.com/your-username/helps-near-frontend/issues) · [✨ Request Feature](https://github.com/your-username/helps-near-frontend/issues)
 
 </div>
-
+#
+  **Admin : infanjiounrahman20606@gmail.com password : 12345678**
 ---
 
 ## 📋 Table of Contents
@@ -41,7 +42,6 @@
 Whether it's a medical emergency, fire, accident, flood, or crime, Helps Near ensures that help is always just a few taps away. The platform is built with a mobile-first approach and real-time updates to maximize response speed in critical situations.
 
 > ⚠️ **For life-threatening emergencies, always call [999](tel:999) first.**
-
 ---
 
 ## ✨ Features

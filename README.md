@@ -16,8 +16,7 @@
 [🌐 Live Demo](https://helps-near-frontend.vercel.app/) · [🐛 Report Bug](https://github.com/your-username/helps-near-frontend/issues) · [✨ Request Feature](https://github.com/your-username/helps-near-frontend/issues)
 
 </div>
-#
-  **Admin : infanjiounrahman20606@gmail.com password : 12345678**
+# **Admin : infanjiounrahman20606@gmail.com password : 12345678**
 ---
 
 ## 📋 Table of Contents

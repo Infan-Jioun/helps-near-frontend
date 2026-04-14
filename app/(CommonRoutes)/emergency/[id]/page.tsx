@@ -2,20 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Loader2, MapPin, User, Star, Clock, AlertTriangle } from "lucide-react";
+import {
+    MapPin, User, Star, Clock, AlertTriangle,
+    Shield, Phone, ChevronLeft, Users, Loader2
+} from "lucide-react";
 import { toast } from "sonner";
 import { emergencyApi } from "@/lib/emergencyApi";
 import { volunteerResponseApi } from "@/lib/volunteerResponseApi";
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-    CardDescription,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Emergency {
     id: string;
@@ -32,20 +25,20 @@ interface Emergency {
     responses: { id: string; name: string; phone?: string }[];
 }
 
-const typeConfig: Record<string, { label: string; color: string }> = {
-    MEDICAL: { label: "Medical", color: "text-red-600" },
-    FIRE: { label: "Fire", color: "text-orange-600" },
-    ACCIDENT: { label: "Accident", color: "text-yellow-600" },
-    FLOOD: { label: "Flood", color: "text-blue-600" },
-    CRIME: { label: "Crime", color: "text-purple-600" },
-    OTHER: { label: "Other", color: "text-gray-600" },
+const typeConfig: Record<string, { label: string; emoji: string; border: string; text: string }> = {
+    MEDICAL: { label: "Medical", emoji: "🚑", border: "border-t-red-500", text: "text-red-500" },
+    FIRE: { label: "Fire", emoji: "🔥", border: "border-t-orange-500", text: "text-orange-500" },
+    ACCIDENT: { label: "Accident", emoji: "💥", border: "border-t-yellow-500", text: "text-yellow-600" },
+    FLOOD: { label: "Flood", emoji: "🌊", border: "border-t-blue-500", text: "text-blue-500" },
+    CRIME: { label: "Crime", emoji: "🚨", border: "border-t-purple-500", text: "text-purple-500" },
+    OTHER: { label: "Other", emoji: "⚠️", border: "border-t-gray-400", text: "text-gray-500" },
 };
 
-const statusConfig: Record<string, { label: string; color: string }> = {
-    PENDING: { label: "Pending", color: "bg-yellow-100 text-yellow-700" },
-    IN_PROGRESS: { label: "In Progress", color: "bg-blue-100 text-blue-700" },
-    RESOLVED: { label: "Resolved", color: "bg-green-100 text-green-700" },
-    CANCELLED: { label: "Cancelled", color: "bg-gray-100 text-gray-500" },
+const statusConfig: Record<string, { label: string; pill: string; dot: string }> = {
+    PENDING: { label: "Pending", pill: "bg-yellow-50 text-yellow-700 border border-yellow-200", dot: "bg-yellow-400" },
+    IN_PROGRESS: { label: "In Progress", pill: "bg-blue-50 text-blue-700 border border-blue-200", dot: "bg-blue-400" },
+    RESOLVED: { label: "Resolved", pill: "bg-green-50 text-green-700 border border-green-200", dot: "bg-green-400" },
+    CANCELLED: { label: "Cancelled", pill: "bg-gray-100 text-gray-500 border border-gray-200", dot: "bg-gray-400" },
 };
 
 function timeAgo(dateStr: string) {
@@ -58,6 +51,78 @@ function timeAgo(dateStr: string) {
     return `${Math.floor(hours / 24)}d ago`;
 }
 
+/* ─────────────────────────────────────────
+   Skeleton Loader
+───────────────────────────────────────── */
+function SkeletonLoader() {
+    return (
+        <div className="min-h-screen bg-red-50/40 pt-24 pb-16 px-4">
+            <div className="max-w-3xl mx-auto space-y-4 animate-pulse">
+
+                {/* Header card */}
+                <div className="bg-white rounded-2xl border-t-4 border-t-red-200 border border-red-100 shadow-sm p-6 space-y-5">
+                    <div className="flex items-center justify-between">
+                        <div className="h-9 w-20 rounded-xl bg-red-100" />
+                        <div className="h-7 w-24 rounded-full bg-red-100" />
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-xl bg-red-100" />
+                        <div className="space-y-2">
+                            <div className="h-8 w-56 rounded-lg bg-red-100" />
+                            <div className="flex gap-2">
+                                <div className="h-5 w-24 rounded-full bg-red-100" />
+                                <div className="h-5 w-14 rounded-full bg-red-100" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Description */}
+                <div className="bg-white rounded-2xl border border-red-100 shadow-sm p-6 space-y-3">
+                    <div className="h-3 w-20 rounded bg-red-100" />
+                    <div className="h-4 w-full rounded bg-gray-100" />
+                    <div className="h-4 w-5/6 rounded bg-gray-100" />
+                    <div className="h-4 w-3/4 rounded bg-gray-100" />
+                </div>
+
+                {/* Grid */}
+                <div className="grid grid-cols-2 gap-4">
+                    {[0, 1].map((i) => (
+                        <div key={i} className="bg-white rounded-2xl border border-red-100 shadow-sm p-5 flex gap-3">
+                            <div className="h-10 w-10 rounded-xl bg-red-100 shrink-0" />
+                            <div className="space-y-2 flex-1">
+                                <div className="h-3 w-14 rounded bg-red-100" />
+                                <div className="h-4 w-full rounded bg-gray-100" />
+                                <div className="h-3 w-20 rounded bg-gray-100" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Map */}
+                <div className="bg-white rounded-2xl border border-red-100 shadow-sm overflow-hidden">
+                    <div className="px-5 py-4 border-b border-red-50 flex gap-2">
+                        <div className="h-3 w-4 rounded bg-red-100" />
+                        <div className="h-3 w-32 rounded bg-red-100" />
+                    </div>
+                    <div className="h-64 bg-gradient-to-br from-red-50 to-gray-100 flex items-center justify-center">
+                        <span className="text-5xl opacity-20">🗺️</span>
+                    </div>
+                    <div className="px-5 py-3 border-t border-red-50">
+                        <div className="h-3 w-36 rounded bg-red-100" />
+                    </div>
+                </div>
+
+                {/* Button */}
+                <div className="h-14 w-full rounded-2xl bg-red-200" />
+            </div>
+        </div>
+    );
+}
+
+/* ─────────────────────────────────────────
+   Main Page
+───────────────────────────────────────── */
 export default function EmergencyDetailPage() {
     const { id } = useParams();
     const router = useRouter();
@@ -66,8 +131,6 @@ export default function EmergencyDetailPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string>("");
     const [volunteering, setVolunteering] = useState(false);
-
-    // Add state for the logged-in user's role
     const [userRole, setUserRole] = useState<string | null>(null);
 
     const fetchEmergency = async () => {
@@ -75,10 +138,10 @@ export default function EmergencyDetailPage() {
             setLoading(true);
             const res = await emergencyApi.getById(id as string);
             setEmergency(res.data);
-        } catch (err: any) {
-            const errorMsg = "Failed to load emergency details.";
-            setError(errorMsg);
-            toast.error(errorMsg);
+        } catch {
+            const msg = "Failed to load emergency details.";
+            setError(msg);
+            toast.error(msg);
         } finally {
             setLoading(false);
         }
@@ -91,7 +154,7 @@ export default function EmergencyDetailPage() {
             await volunteerResponseApi.accept(emergency.id);
             toast.success("Successfully volunteered to help!");
             await fetchEmergency();
-        } catch (err: any) {
+        } catch {
             toast.error("Failed to volunteer. Please try again.");
         } finally {
             setVolunteering(false);
@@ -100,157 +163,188 @@ export default function EmergencyDetailPage() {
 
     useEffect(() => {
         if (id) fetchEmergency();
-
-        // TODO: Replace this with your actual Auth logic (e.g., useSession from NextAuth, context, or API call)
-        // Example: const role = localStorage.getItem("userRole");
-        // For demonstration, setting it manually to "VOLUNTEER"
-        const currentRole = "VOLUNTEER";
-        setUserRole(currentRole);
+        setUserRole("VOLUNTEER");
     }, [id]);
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-screen bg-gray-50">
-                <Loader2 className="w-10 h-10 animate-spin text-red-600" />
-            </div>
-        );
-    }
+    /* Loading */
+    if (loading) return <SkeletonLoader />;
 
+    /* Error */
     if (error || !emergency) {
         return (
-            <div className="flex flex-col items-center justify-center h-screen bg-gray-50 text-gray-400">
-                <AlertTriangle className="w-12 h-12 mb-4 text-red-500 opacity-50" />
-                <p className="text-lg font-medium text-gray-600">{error || "Emergency not found."}</p>
-                <Button variant="outline" className="mt-4" onClick={() => router.back()}>
-                    Go Back
-                </Button>
+            <div className="min-h-screen bg-red-50/40 flex flex-col items-center justify-center gap-4 px-4">
+                <div className="bg-red-100 rounded-full p-5">
+                    <AlertTriangle className="w-10 h-10 text-red-500" />
+                </div>
+                <p className="text-gray-700 font-semibold text-lg text-center">
+                    {error || "Emergency not found."}
+                </p>
+            
             </div>
         );
     }
 
     const type = typeConfig[emergency.type] || typeConfig.OTHER;
     const status = statusConfig[emergency.status] || statusConfig.PENDING;
-    const isResolvedOrCancelled = status.label === "Resolved" || status.label === "Cancelled";
+    const isResolvedOrCancelled = emergency.status === "RESOLVED" || emergency.status === "CANCELLED";
+
+    const mapSrc =
+        `https://www.openstreetmap.org/export/embed.html` +
+        `?bbox=${emergency.longitude - 0.01},${emergency.latitude - 0.01},${emergency.longitude + 0.01},${emergency.latitude + 0.01}` +
+        `&layer=mapnik&marker=${emergency.latitude},${emergency.longitude}`;
 
     return (
-        <div className="min-h-screen bg-gray-50 pt-24 pb-12 px-4 sm:px-6 lg:px-8">
-            <Card className="max-w-4xl mx-auto rounded-2xl shadow-sm border-gray-200">
-                <CardHeader className="border-b bg-white rounded-t-2xl pb-6">
-                    <div className="flex justify-between items-start">
-                        <div className="space-y-1">
-                            <CardTitle className={`flex items-center gap-2 text-2xl font-bold ${type.color}`}>
-                                {type.label} Emergency {emergency.isPriority && <Star className="w-5 h-5 text-red-500 fill-current" />}
-                            </CardTitle>
-                            <CardDescription className="flex items-center gap-2 mt-2">
-                                <Badge variant="secondary" className={`${status.color} px-3 py-1 rounded-full font-medium border-0`}>
-                                    {status.label}
-                                </Badge>
-                                <span className="flex items-center gap-1 text-xs text-gray-500 ml-2">
-                                    <Clock className="w-3.5 h-3.5" />
-                                    {timeAgo(emergency.createdAt)}
-                                </span>
-                            </CardDescription>
-                        </div>
-                    </div>
-                </CardHeader>
+        <div className="min-h-screen bg-red-50/40 pt-24 pb-16 px-4">
+            {/* Top progress bar */}
+            <div className="fixed top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-400 via-red-500 to-red-400 z-50" />
 
-                <CardContent className="flex flex-col gap-6 pt-6 bg-white rounded-b-2xl">
-                    {/* Description Section */}
-                    <div>
-                        <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-2">Description</h2>
-                        <p className="text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-xl border border-gray-100">
-                            {emergency.description || "No description available for this emergency."}
-                        </p>
-                    </div>
+            <div className="max-w-3xl mx-auto space-y-4">
 
-                    {/* Details Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100">
-                            <MapPin className="w-5 h-5 text-gray-500 mt-0.5" />
+                {/* ── HEADER CARD ── */}
+                <div className={`bg-white rounded-2xl border-t-4 border  shadow-sm`}>
+                    <div className="p-6">
+                   
+                        {/* Type */}
+                        <div className="flex items-center gap-3 flex-wrap">
+                            <span className="text-4xl leading-none">{type.emoji}</span>
                             <div>
-                                <p className="text-xs font-semibold text-gray-500 uppercase">Location</p>
-                                <p className="text-gray-800 font-medium">
-                                    {[emergency.address, emergency.district].filter(Boolean).join(", ") || "Location not specified"}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100">
-                            <User className="w-5 h-5 text-gray-500 mt-0.5" />
-                            <div>
-                                <p className="text-xs font-semibold text-gray-500 uppercase">Reported By</p>
-                                <p className="text-gray-800 font-medium">
-                                    {emergency.user?.name || "Anonymous"}
-                                    {emergency.user?.phone && <span className="text-gray-500 font-normal ml-1">({emergency.user.phone})</span>}
-                                </p>
+                                <h1 className={`text-3xl font-black tracking-tight leading-none ${type.text}`}>
+                                    {type.label} Emergency
+                                </h1>
+                                <div className="flex items-center gap-2 mt-2.5 flex-wrap">
+                                    <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full ${status.pill}`}>
+                                        <span className={`w-1.5 h-1.5 rounded-full ${status.dot} animate-pulse`} />
+                                        {status.label}
+                                    </span>
+                                    <span className="flex items-center gap-1 text-xs text-gray-400">
+                                        <Clock size={11} /> {timeAgo(emergency.createdAt)}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    {/* Responders Section */}
-                    {emergency.responses?.length > 0 && (
+                {/* ── DESCRIPTION ── */}
+                <div className="bg-white rounded-2xl border border-red-100 shadow-sm p-6">
+                    <p className="text-[10px] font-black tracking-widest text-red-400 uppercase mb-3">
+                        Description
+                    </p>
+                    <p className="text-gray-600 leading-relaxed text-sm">
+                        {emergency.description || "No description provided for this emergency."}
+                    </p>
+                </div>
+
+                {/* ── DETAILS GRID ── */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="bg-white rounded-2xl border border-red-100 shadow-sm p-5 flex items-start gap-3">
+                        <div className="bg-red-50 rounded-xl p-2.5 shrink-0">
+                            <MapPin size={17} className="text-red-500" />
+                        </div>
                         <div>
-                            <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-2">
-                                Volunteers Responded ({emergency.responses.length})
-                            </h2>
-                            <ScrollArea className="max-h-40 border border-gray-100 rounded-xl bg-gray-50 p-4">
-                                <ul className="space-y-2">
-                                    {emergency.responses.map((r) => (
-                                        <li key={r.id} className="flex items-center gap-2 text-gray-700">
-                                            <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                                            <span className="font-medium">{r.name}</span>
-                                            {r.phone && <span className="text-gray-500 text-sm">({r.phone})</span>}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </ScrollArea>
+                            <p className="text-[10px] font-black tracking-widest text-red-400 uppercase mb-1">Location</p>
+                            <p className="text-sm font-semibold text-gray-800">
+                                {[emergency.address, emergency.district].filter(Boolean).join(", ") || "Not specified"}
+                            </p>
                         </div>
-                    )}
-
-                    {/* Map Section */}
-                    {emergency.latitude && emergency.longitude && (
-                        <div className="mt-2 h-72 w-full rounded-xl overflow-hidden border border-gray-200 shadow-inner">
-                            <iframe
-                                width="100%"
-                                height="100%"
-                                loading="lazy"
-                                src={`http://googleusercontent.com/maps.google.com/maps?q=${emergency.latitude},${emergency.longitude}&z=15&output=embed`}
-                                title="Emergency Location"
-                                className="border-0"
-                            />
-                        </div>
-                    )}
-
-                    {/* Action Buttons */}
-                    <div className="flex flex-col sm:flex-row gap-3 mt-4 pt-4 border-t border-gray-100">
-                        <Button
-                            variant="outline"
-                            className="flex-1 py-6 text-base font-medium"
-                            onClick={() => router.back()}
-                        >
-                            Go Back
-                        </Button>
-
-
-                        <Button
-                            className="bg-green-600 hover:bg-green-700 text-white flex-1 py-6 text-base font-medium transition-colors"
-                            onClick={handleVolunteer}
-                            disabled={
-                                userRole !== "VOLUNTEER" || volunteering || isResolvedOrCancelled
-                            }
-                        >
-                            {volunteering ? (
-                                <>
-                                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                                    Processing...
-                                </>
-                            ) : (
-                                "Volunteer Help"
-                            )}
-                        </Button>
                     </div>
-                </CardContent>
-            </Card>
+
+                    <div className="bg-white rounded-2xl border border-red-100 shadow-sm p-5 flex items-start gap-3">
+                        <div className="bg-red-50 rounded-xl p-2.5 shrink-0">
+                            <User size={17} className="text-red-500" />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black tracking-widest text-red-400 uppercase mb-1">Reported By</p>
+                            <p className="text-sm font-semibold text-gray-800">
+                                {emergency.user?.name || "Anonymous"}
+                            </p>
+                            {emergency.user?.phone && (
+                                <p className="flex items-center gap-1 text-xs text-gray-400 mt-0.5">
+                                    <Phone size={10} /> {emergency.user.phone}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* ── RESPONDERS ── */}
+                {emergency.responses?.length > 0 && (
+                    <div className="bg-white rounded-2xl border border-red-100 shadow-sm p-6">
+                        <div className="flex items-center gap-2 mb-4">
+                            <Users size={14} className="text-red-500" />
+                            <p className="text-[10px] font-black tracking-widest text-red-400 uppercase">
+                                Volunteers Responded
+                            </p>
+                            <span className="ml-auto bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full leading-tight">
+                                {emergency.responses.length}
+                            </span>
+                        </div>
+                        <div className="max-h-40 overflow-y-auto space-y-0.5 pr-1">
+                            {emergency.responses.map((r) => (
+                                <div
+                                    key={r.id}
+                                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-red-50 transition-colors"
+                                >
+                                    <span className="w-2 h-2 rounded-full bg-green-400 shrink-0" />
+                                    <span className="text-sm font-medium text-gray-800">{r.name}</span>
+                                    {r.phone && (
+                                        <span className="text-xs text-gray-400 ml-1">{r.phone}</span>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* ── MAP (OpenStreetMap) ── */}
+                {emergency.latitude && emergency.longitude && (
+                    <div className="bg-white rounded-2xl border border-red-100 shadow-sm overflow-hidden">
+                        <div className="flex items-center gap-2 px-5 py-4 border-b border-red-50">
+                            <MapPin size={13} className="text-red-500" />
+                            <p className="text-[10px] font-black tracking-widest text-red-400 uppercase">
+                                Emergency Location
+                            </p>
+                        </div>
+                        <iframe
+                            width="100%"
+                            height="280"
+                            loading="lazy"
+                            src={mapSrc}
+                            title="Emergency Location"
+                            className="border-0 block"
+                        />
+                        <div className="px-5 py-3 bg-red-50/50 border-t border-red-100">
+                            <a
+                                href={`https://www.openstreetmap.org/?mlat=${emergency.latitude}&mlon=${emergency.longitude}#map=16/${emergency.latitude}/${emergency.longitude}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-red-500 font-semibold hover:underline"
+                            >
+                                Open in OpenStreetMap ↗
+                            </a>
+                        </div>
+                    </div>
+                )}
+
+                {/* ── VOLUNTEER BUTTON ── */}
+                <button
+                    onClick={handleVolunteer}
+                    disabled={userRole !== "VOLUNTEER" || volunteering || isResolvedOrCancelled}
+                    className="w-full flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-base py-4 rounded-2xl shadow-lg shadow-red-200 hover:shadow-red-300 transition-all active:scale-[0.99]"
+                >
+                    {volunteering ? (
+                        <>
+                            <Loader2 size={18} className="animate-spin" />
+                            Processing…
+                        </>
+                    ) : (
+                        <>
+                            <Shield size={18} />
+                            Volunteer to Help
+                        </>
+                    )}
+                </button>
+            </div>
         </div>
     );
 }

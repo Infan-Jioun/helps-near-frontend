@@ -123,7 +123,11 @@ export default function Navbar() {
 
                     <div className="hidden md:flex items-center gap-3">
                         {isPending ? (
-                            <div className="w-8 h-8 animate-pulse bg-gray-200 rounded-full" />
+
+                            <div className="flex gap-4">
+                                <div className="w-16 h-8 animate-pulse bg-red-100 rounded-full" />
+                                <div className="w-24 h-8 animate-pulse bg-red-100 rounded-full" />
+                            </div>
                         ) : user ? (
                             <>
                                 <Button variant="ghost" size="icon" className="relative">

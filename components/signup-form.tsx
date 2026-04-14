@@ -143,9 +143,9 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
               {loading ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" />Creating account...</>) : "Create Account"}
             </Button>
 
-            <Button type="button" onClick={signInWithGoogle} className="w-full mt-2 flex justify-center items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white">
+            {/* <Button type="button" onClick={signInWithGoogle} className="w-full mt-2 flex justify-center items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white">
               Sign up with Google
-            </Button>
+            </Button> */}
 
             <p className="text-center text-sm text-muted-foreground">
               Already have an account?{" "}

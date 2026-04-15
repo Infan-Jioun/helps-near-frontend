@@ -57,7 +57,7 @@ Whether it's a medical emergency, fire, accident, flood, or crime, Helps Near en
 - Build your volunteer profile and rating
 
 ### 🔐 Admin Verification
-- All volunteers are verified by the admin team before they can respond
+- All volunteer are verified by the admin team before they can respond
 - Ensures community safety and trust
 
 ### 📍 Location-Based Matching

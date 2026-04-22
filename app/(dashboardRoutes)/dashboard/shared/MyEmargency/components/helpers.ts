@@ -1,9 +1,9 @@
 import { Emergency, VolunteerResponse } from "./types";
+
 export function getResponses(e: Emergency): VolunteerResponse[] {
     return e.responses ?? e.volunteerResponses ?? [];
 }
 
-/** Safe client-only date format — avoids SSR/client hydration mismatch */
 export function formatDate(dateStr?: string | null): string {
     if (!dateStr) return "—";
     const d = new Date(dateStr);

@@ -1,5 +1,5 @@
 import React from 'react'
-import MyEmargency from '../../shared/MyEmargency'
+import MyEmargency from '../../shared/MyEmargency/components/MyEmargency'
 
 export default function MyEmargencies() {
   return (

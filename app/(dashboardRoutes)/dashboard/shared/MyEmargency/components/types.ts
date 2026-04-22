@@ -1,4 +1,3 @@
-
 export type EmergencyStatus =
     | "PENDING"
     | "ACCEPTED"

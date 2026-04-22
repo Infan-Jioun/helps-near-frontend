@@ -2,10 +2,8 @@
 
 import { useState } from "react";
 import { VolunteerResponse } from "./types";
-import { formatDate } from "./utils";
+import { formatDate } from "./helpers";
 import TipModal from "./Tipmodal";
-import Image from "next/image";
-
 
 interface VolunteerCardProps {
     response: VolunteerResponse;
@@ -31,13 +29,14 @@ export default function VolunteerCard({ response, emergencyId, isResolved }: Vol
                     {/* Avatar */}
                     <div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center text-white font-bold text-sm shrink-0 overflow-hidden">
                         {v.profileImage
-                            ? <Image src={v.profileImage} alt={v.name} width={100} height={100} priority className="w-full h-full object-cover" />
+                            // eslint-disable-next-line @next/next/no-img-element
+                            ? <img src={v.profileImage} alt={v.name} className="w-full h-full object-cover" />
                             : initials
                         }
                     </div>
 
                     <div className="flex-1 min-w-0">
-                        {/* Name + badges */}
+                        {/* Name + badges row */}
                         <div className="flex items-center gap-1.5 flex-wrap">
                             <p className="text-sm font-bold text-gray-800">{v.name}</p>
 
@@ -106,7 +105,7 @@ export default function VolunteerCard({ response, emergencyId, isResolved }: Vol
                             </div>
                         )}
 
-                        {/* Footer */}
+                        {/* Footer row */}
                         <div className="mt-3 flex items-center justify-between gap-2 flex-wrap">
                             <p className="text-xs text-gray-400">{dateStr}</p>
 

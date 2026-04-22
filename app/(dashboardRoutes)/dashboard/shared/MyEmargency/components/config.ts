@@ -1,4 +1,4 @@
-import { EmergencyStatus } from "./types";
+import { EmergencyStatus } from "../../types";
 
 export const STATUS_STYLES: Record<EmergencyStatus, string> = {
     PENDING: "bg-amber-50 text-amber-700 border-amber-200",

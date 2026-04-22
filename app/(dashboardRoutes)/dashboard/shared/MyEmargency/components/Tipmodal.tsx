@@ -1,12 +1,9 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useState } from "react";
 import { VolunteerInfo } from "./types";
 import { TIP_AMOUNTS } from "./config";
-
-// ─────────────────────────────────────────────────────────────────────────────
-// TipModal Component
-// ─────────────────────────────────────────────────────────────────────────────
 
 interface TipModalProps {
     volunteer: VolunteerInfo;
@@ -28,6 +25,7 @@ export default function TipModal({ volunteer, emergencyId, onClose }: TipModalPr
         setLoading(true);
         try {
             // TODO: await paymentApi.sendTip({ emergencyId, volunteerId: volunteer.id, amount });
+            void emergencyId;
             await new Promise((r) => setTimeout(r, 1200));
             setSuccess(true);
         } finally {
@@ -53,22 +51,15 @@ export default function TipModal({ volunteer, emergencyId, onClose }: TipModalPr
                                 ৳{amount} sent to{" "}
                                 <span className="font-semibold text-gray-700">{volunteer?.name}</span>
                             </p>
-                            <button
-                                onClick={onClose}
-                                className="mt-2 w-full py-3 rounded-xl bg-emerald-500 text-white font-bold text-sm hover:bg-emerald-600 transition"
-                            >
+                            <button onClick={onClose} className="mt-2 w-full py-3 rounded-xl bg-emerald-500 text-white font-bold text-sm hover:bg-emerald-600 transition">
                                 Done
                             </button>
                         </div>
                     ) : (
                         <>
-                            {/* Header */}
                             <div className="flex items-center justify-between mb-5">
                                 <h2 className="text-base font-bold text-gray-900">Send a Tip</h2>
-                                <button
-                                    onClick={onClose}
-                                    className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition"
-                                >
+                                <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition">
                                     <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                     </svg>
@@ -94,10 +85,7 @@ export default function TipModal({ volunteer, emergencyId, onClose }: TipModalPr
                                 )}
                             </div>
 
-                            {/* Amount selector */}
-                            <p className="text-[10px] font-black tracking-widest text-red-400 uppercase mb-2">
-                                Choose Amount (BDT)
-                            </p>
+                            <p className="text-[10px] font-black tracking-widest text-red-400 uppercase mb-2">Choose Amount (BDT)</p>
                             <div className="grid grid-cols-4 gap-2 mb-3">
                                 {TIP_AMOUNTS.map((amt) => (
                                     <button
@@ -113,7 +101,6 @@ export default function TipModal({ volunteer, emergencyId, onClose }: TipModalPr
                                 ))}
                             </div>
 
-                            {/* Custom input */}
                             <div className="relative mb-5">
                                 <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 font-semibold text-sm">৳</span>
                                 <input
@@ -125,7 +112,6 @@ export default function TipModal({ volunteer, emergencyId, onClose }: TipModalPr
                                 />
                             </div>
 
-                            {/* Pay button */}
                             <button
                                 onClick={handlePay}
                                 disabled={!amount || amount <= 0 || loading}

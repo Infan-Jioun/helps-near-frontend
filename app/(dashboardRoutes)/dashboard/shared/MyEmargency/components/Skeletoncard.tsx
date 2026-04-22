@@ -1,7 +1,3 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// SkeletonCard Component
-// ─────────────────────────────────────────────────────────────────────────────
-
 export default function SkeletonCard() {
     return (
         <div className="bg-white rounded-2xl border border-red-100 shadow-sm overflow-hidden animate-pulse">

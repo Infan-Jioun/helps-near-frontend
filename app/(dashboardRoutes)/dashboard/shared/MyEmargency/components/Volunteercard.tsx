@@ -4,6 +4,7 @@ import { useState } from "react";
 import { VolunteerResponse } from "./types";
 import { formatDate } from "./helpers";
 import TipModal from "./Tipmodal";
+import StripeProvider from "../StripeProvider";
 
 interface VolunteerCardProps {
     response: VolunteerResponse;
@@ -129,13 +130,14 @@ export default function VolunteerCard({ response, emergencyId, isResolved }: Vol
                     </div>
                 </div>
             </div>
-
             {showTip && (
-                <TipModal
-                    volunteer={v}
-                    emergencyId={emergencyId}
-                    onClose={() => setShowTip(false)}
-                />
+                <StripeProvider>
+                    <TipModal
+                        volunteer={v}
+                        emergencyId={emergencyId}
+                        onClose={() => setShowTip(false)}
+                    />
+                </StripeProvider>
             )}
         </>
     );

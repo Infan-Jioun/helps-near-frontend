@@ -1,4 +1,4 @@
-import { EmergencyStatus } from "../../types";
+import { EmergencyStatus } from "./types";
 
 export const STATUS_STYLES: Record<EmergencyStatus, string> = {
     PENDING: "bg-amber-50 text-amber-700 border-amber-200",
@@ -33,4 +33,4 @@ export const TYPE_EMOJI: Record<string, string> = {
     OTHER: "⚠️",
 };
 
-export const TIP_AMOUNTS = [20, 50, 100, 200];
+export const TIP_AMOUNTS = [5, 10, 20, 50]

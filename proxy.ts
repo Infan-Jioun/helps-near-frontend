@@ -93,7 +93,7 @@ export async function proxy(req: NextRequest) {
     }
 
     const accessToken = req.cookies.get("accessToken")?.value;
-    const sessionToken = req.cookies.get("better-auth-session_token")?.value;
+    const sessionToken = req.cookies.get("session_token")?.value;
 
    
     if (!sessionToken) {

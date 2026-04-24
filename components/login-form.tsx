@@ -63,7 +63,11 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
         return;
       } else {
         toast.success("Logged in successfully!");
-        router.push("/");
+
+        const params = new URLSearchParams(window.location.search);
+        const redirect = params.get("redirect");
+
+        router.push(redirect || "/");
       }
 
 

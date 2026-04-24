@@ -51,12 +51,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       });
 
       const data = res.data?.data;
-      const accessToken = data?.accessToken;
       const emailVerified = data?.user?.emailVerified;
-      if (accessToken) {
-        document.cookie = `accessToken=${accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; secure; samesite=lax`;
-      }
-
       if (!emailVerified) {
         toast.info("Please verify your email to continue.");
         router.push(`/verify-email`);
@@ -64,10 +59,8 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       } else {
         toast.success("Logged in successfully!");
 
-        const params = new URLSearchParams(window.location.search);
-        const redirect = params.get("redirect");
 
-        router.push(redirect || "/");
+        router.push("/");
       }
 
 

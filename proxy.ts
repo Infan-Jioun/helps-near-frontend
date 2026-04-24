@@ -56,7 +56,7 @@ function getDashboardByRole(role: string): string {
     return "/dashboard/user";
 }
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
     const { pathname } = req.nextUrl;
 
     // static ignore

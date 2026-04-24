@@ -1,7 +1,7 @@
 import { jwtVerify } from "jose";
 import { NextRequest, NextResponse } from "next/server";
 
-
+// পাবলিক route (login ছাড়া ঢুকতে পারবে)
 const publicRoutes = [
     "/",
     "/login",
@@ -14,33 +14,13 @@ const publicRoutes = [
     "/volunteers",
 ];
 
+// auth page (logged in থাকলে ঢুকতে পারবে না)
 const authRoutes = ["/login", "/register", "/verify-email"];
 
-const adminRoutes = [
-    "/dashboard/admin",
-    "/dashboard/admin/users-management",
-    "/dashboard/admin/create-emergency",
-    "/dashboard/admin/my-emergencies",
-    "/dashboard/admin/volunteer-management",
-    "/dashboard/admin/payment-management",
-    "/emergency-management",
-];
-
-const volunteerRoutes = [
-    "/dashboard/volunteer",
-    "/create-emergency",
-    "/myprofile",
-    "/my-emergencies",
-    "/payment-management",
-];
-
-const userRoutes = [
-    "/dashboard/user",
-    "/create-emergency",
-    "/my-emergencies",
-    "/payment-management",
-];
-
+// role-based routes
+const adminRoutes = ["/dashboard/admin"];
+const volunteerRoutes = ["/dashboard/volunteer"];
+const userRoutes = ["/dashboard/user"];
 
 function isPublicRoute(pathname: string) {
     return publicRoutes.some(
@@ -58,6 +38,7 @@ interface TokenPayload {
     email: string;
 }
 
+// JWT verify
 async function verifyAccessToken(token: string): Promise<TokenPayload | null> {
     try {
         const secret = new TextEncoder().encode(process.env.ACCESS_TOKEN_SECRET);
@@ -68,22 +49,17 @@ async function verifyAccessToken(token: string): Promise<TokenPayload | null> {
     }
 }
 
+// role অনুযায়ী dashboard
 function getDashboardByRole(role: string): string {
-    switch (role) {
-        case "ADMIN":
-            return "/dashboard/admin";
-        case "VOLUNTEER":
-            return "/dashboard/volunteer";
-        default:
-            return "/dashboard/user";
-    }
+    if (role === "ADMIN") return "/dashboard/admin";
+    if (role === "VOLUNTEER") return "/dashboard/volunteer";
+    return "/dashboard/user";
 }
 
-
-export async function proxy(req: NextRequest) {
+export async function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl;
 
-
+    // static ignore
     if (
         pathname.startsWith("/_next") ||
         pathname.startsWith("/api") ||
@@ -93,10 +69,15 @@ export async function proxy(req: NextRequest) {
     }
 
     const accessToken = req.cookies.get("accessToken")?.value;
-    const sessionToken = req.cookies.get("better-auth-session_token")?.value;
 
-   
-    if (!sessionToken) {
+    let user: TokenPayload | null = null;
+
+    if (accessToken) {
+        user = await verifyAccessToken(accessToken);
+    }
+
+    // ❌ not logged in
+    if (!user) {
         if (isPublicRoute(pathname)) return NextResponse.next();
 
         return NextResponse.redirect(
@@ -104,33 +85,14 @@ export async function proxy(req: NextRequest) {
         );
     }
 
-  
-    let user: TokenPayload | null = null;
-
-    if (accessToken) {
-        user = await verifyAccessToken(accessToken);
-    }
-
-
-    if (!user) {
-        if (isAuthRoute(pathname)) return NextResponse.next();
-
-        const res = NextResponse.redirect(
-            new URL(`/login?redirect=${encodeURIComponent(pathname)}`, req.url)
-        );
-        res.cookies.delete("accessToken");
-        res.cookies.delete("better-auth-session_token");
-        return res;
-    }
-
-   
+    // ❌ logged in user trying to access login/register
     if (isAuthRoute(pathname)) {
         return NextResponse.redirect(
             new URL(getDashboardByRole(user.role), req.url)
         );
     }
 
-
+    // 🔐 ADMIN guard
     if (
         adminRoutes.some((r) => pathname.startsWith(r)) &&
         user.role !== "ADMIN"
@@ -140,6 +102,7 @@ export async function proxy(req: NextRequest) {
         );
     }
 
+    // 🔐 VOLUNTEER guard
     if (
         volunteerRoutes.some((r) => pathname.startsWith(r)) &&
         !["VOLUNTEER", "ADMIN"].includes(user.role)
@@ -149,7 +112,7 @@ export async function proxy(req: NextRequest) {
         );
     }
 
-
+    // 🔐 USER guard
     if (
         userRoutes.some((r) => pathname.startsWith(r)) &&
         !["USER", "VOLUNTEER", "ADMIN"].includes(user.role)
@@ -162,8 +125,7 @@ export async function proxy(req: NextRequest) {
     return NextResponse.next();
 }
 
-// ─── Matcher ──────────────────────────────────────────────────────────────────
-
+// matcher
 export const config = {
     matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

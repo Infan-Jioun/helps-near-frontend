@@ -51,8 +51,11 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       });
 
       const data = res.data?.data;
+      const accessToken = data?.accessToken;
       const emailVerified = data?.user?.emailVerified;
-
+      if (accessToken) {
+        document.cookie = `accessToken=${accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; secure; samesite=lax`;
+      }
 
       if (!emailVerified) {
         toast.info("Please verify your email to continue.");

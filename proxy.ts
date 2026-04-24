@@ -119,7 +119,7 @@ export async function proxy(req: NextRequest) {
             new URL(`/login?redirect=${encodeURIComponent(pathname)}`, req.url)
         );
         res.cookies.delete("accessToken");
-        res.cookies.delete("better-auth-session_token");
+        res.cookies.delete("session_token");
         return res;
     }
 

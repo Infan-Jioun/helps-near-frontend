@@ -59,8 +59,16 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       } else {
         toast.success("Logged in successfully!");
 
+        const accessToken = data?.accessToken;
 
-        router.push("/");
+        if (accessToken) {
+          document.cookie = `accessToken=${accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; secure; samesite=lax`;
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        const redirect = params.get("redirect");
+
+        router.push(redirect || "/");
       }
 
 

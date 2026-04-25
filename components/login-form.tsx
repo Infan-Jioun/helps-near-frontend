@@ -62,7 +62,8 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
         const accessToken = data?.accessToken;
 
         if (accessToken) {
-          document.cookie = `accessToken=${accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; secure; samesite=lax`;
+          const isProd = process.env.NODE_ENV === "production";
+          document.cookie = `accessToken=${accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; ${isProd ? "secure; " : ""}samesite=lax`;
         }
 
         const params = new URLSearchParams(window.location.search);
@@ -70,8 +71,6 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 
         router.push(redirect || "/");
       }
-
-
 
 
 

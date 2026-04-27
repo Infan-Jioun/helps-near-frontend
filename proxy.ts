@@ -40,7 +40,7 @@ async function verifyAccessToken(token: string): Promise<TokenPayload | null> {
 async function verifyBetterAuthSession(sessionToken: string): Promise<TokenPayload | null> {
     try {
         const res = await fetch(
-            `${process.env.BETTER_AUTH_URL}/api/auth/get-session`,
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/get-session`,
             {
                 headers: { cookie: `session_token=${sessionToken}` },
                 cache: "no-store",

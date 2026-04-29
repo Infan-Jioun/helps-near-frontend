@@ -177,7 +177,7 @@ export default function ProfilePage() {
                             Become a Volunteer
                         </h3>
                         <Button className="bg-red-600 text-white mt-2" asChild>
-                            <Link href="/volunteer/register">Join Now</Link>
+                            <Link href="/volunteer-register">Join Now</Link>
                         </Button>
                     </div>
                 )}

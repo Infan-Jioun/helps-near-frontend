@@ -1,15 +1,16 @@
+import { userApi } from "@/lib/userApi";
 import AllLogs from "./components/AllLogs";
 
 async function getLogs() {
     try {
-        const res = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/logs`,
-            {
-                cache: "no-store",
-                credentials: "include",
-            }
-        );
-
+        // const res = await fetch(
+        //     `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/logs`,
+        //     {
+        //         cache: "no-store",
+        //         credentials: "include",
+        //     }
+        // );
+        const res = await userApi.getAllLogs();
         if (!res.ok) return [];
 
         const data = await res.json();

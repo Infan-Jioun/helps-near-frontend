@@ -1,7 +1,8 @@
 import React from "react";
 import Link from "next/link";
 import {
-  Users, AlertCircle, FileText, Heart, CreditCard, ShieldAlert, TrendingUp
+  Users, AlertCircle, FileText, Heart, CreditCard, ShieldAlert, TrendingUp,
+  ClipboardList
 } from "lucide-react";
 
 const stats = [
@@ -13,9 +14,9 @@ const stats = [
 
 const navItems = [
   { title: "User Management", desc: "View & manage users", url: "/dashboard/admin/users-management", icon: Users },
+  { title: "All Logs", desc: "View system logs", url: "/dashboard/admin/all-logs", icon: ClipboardList },
   { title: "Create Emergency", desc: "Post a new alert", url: "/dashboard/admin/create-emergency", icon: AlertCircle },
   { title: "My Emergencies", desc: "Track your posts", url: "/dashboard/admin/my-emergencies", icon: FileText },
-  { title: "Volunteer Management", desc: "Approve volunteers", url: "/dashboard/admin/volunteer-management", icon: Heart },
   { title: "Payment Management", desc: "Transactions & logs", url: "/dashboard/admin/payment-management", icon: CreditCard },
   { title: "Emergency Management", desc: "All active cases", url: "/emergency-management", icon: ShieldAlert },
 ];

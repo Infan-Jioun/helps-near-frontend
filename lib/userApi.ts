@@ -33,7 +33,16 @@ export const userApi = {
         page?: number;
         limit?: number;
     }) => {
-        const res = await axiosInstance.get("/api/v1/users/logs", { params });
+        const res = await axiosInstance.get("/api/v1/users/backend-logs", { params });
+        return res.data;
+    },
+    getFrontendLogs: async (params?: {
+        userId?: string;
+        path?: string;
+        page?: number;
+        limit?: number;
+    }) => {
+        const res = await axiosInstance.get("/api/v1/users/frontend-logs", { params });
         return res.data;
     },
     getUserById: async (id: string) => {

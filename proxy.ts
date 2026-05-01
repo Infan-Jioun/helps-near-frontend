@@ -65,33 +65,50 @@ function getDashboardByRole(role: string): string {
     return "/dashboard/user";
 }
 
-
+// ── Frontend Page Visit Logger ────────────────────────────────────────────────
 async function logPageVisit(req: NextRequest, user: TokenPayload | null) {
+    // static asset বা api call log করবো না
+    const { pathname } = req.nextUrl;
+    if (
+        pathname.startsWith("/_next") ||
+        pathname.startsWith("/api") ||
+        pathname.includes(".")
+    ) return;
+
     try {
+        const rawIp =
+            req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+            ?? req.headers.get("x-real-ip")
+            ?? "unknown";
+
+        const cleanIp = rawIp.replace(/^::ffff:/, "");
+
         await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/logs/frontend`,
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/frontend-logs`,
             {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json"  , Authorization: `Bearer ${req.cookies.get("accessToken")?.value ?? ""}` },
                 body: JSON.stringify({
                     timestamp: new Date().toISOString(),
                     method: req.method,
-                    path: req.nextUrl.pathname,
+                    path: pathname,
                     userAgent: req.headers.get("user-agent") ?? "unknown",
-                    ip: req.headers.get("x-forwarded-for") ?? "unknown",
+                    ip: cleanIp,
                     userId: user?.userId ?? "guest",
                     role: user?.role ?? "guest",
                 }),
             }
         );
     } catch {
-        // log fail হলেও page block হবে না
+        // silent fail — page block হবে না
     }
 }
 
+// ── Main Middleware ───────────────────────────────────────────────────────────
 export default async function proxy(req: NextRequest) {
     const { pathname } = req.nextUrl;
 
+    // static files skip করো
     if (
         pathname.startsWith("/_next") ||
         pathname.startsWith("/api") ||
@@ -102,11 +119,13 @@ export default async function proxy(req: NextRequest) {
 
     let user: TokenPayload | null = null;
 
+    // 1. Custom JWT (email/password login)
     const accessToken = req.cookies.get("accessToken")?.value;
     if (accessToken) {
         user = await verifyAccessToken(accessToken);
     }
 
+    // 2. Better Auth session (Google OAuth)
     if (!user) {
         const sessionToken = req.cookies.get("session_token")?.value;
         if (sessionToken) {
@@ -114,8 +133,10 @@ export default async function proxy(req: NextRequest) {
         }
     }
 
-    logPageVisit(req, user)
 
+    logPageVisit(req, user);
+
+    // Auth guard
     if (!user) {
         if (isPublicRoute(pathname)) return NextResponse.next();
         return NextResponse.redirect(
@@ -123,16 +144,19 @@ export default async function proxy(req: NextRequest) {
         );
     }
 
+
     if (isAuthRoute(pathname)) {
         return NextResponse.redirect(
             new URL(getDashboardByRole(user.role), req.url)
         );
     }
 
+    // Role guard — admin
     if (adminRoutes.some((r) => pathname.startsWith(r)) && user.role !== "ADMIN") {
         return NextResponse.redirect(new URL(getDashboardByRole(user.role), req.url));
     }
 
+    // Role guard — volunteer
     if (
         volunteerRoutes.some((r) => pathname.startsWith(r)) &&
         !["VOLUNTEER", "ADMIN"].includes(user.role)
@@ -140,6 +164,7 @@ export default async function proxy(req: NextRequest) {
         return NextResponse.redirect(new URL(getDashboardByRole(user.role), req.url));
     }
 
+    // Role guard — user
     if (
         userRoutes.some((r) => pathname.startsWith(r)) &&
         !["USER", "VOLUNTEER", "ADMIN"].includes(user.role)

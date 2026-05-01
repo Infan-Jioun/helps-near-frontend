@@ -27,7 +27,15 @@ export const userApi = {
         const res = await axiosInstance.get("/api/v1/users", { params });
         return res.data;
     },
-
+    getAllLogs: async (params?: {
+        userId?: string;
+        action?: string;
+        page?: number;
+        limit?: number;
+    }) => {
+        const res = await axiosInstance.get("/api/v1/logs", { params });
+        return res.data;
+    },
     getUserById: async (id: string) => {
         const res = await axiosInstance.get(`/api/v1/users/${id}`);
         return res.data;

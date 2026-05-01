@@ -33,7 +33,7 @@ export const userApi = {
         page?: number;
         limit?: number;
     }) => {
-        const res = await axiosInstance.get("/api/v1/logs", { params });
+        const res = await axiosInstance.get("/api/v1/users/logs", { params });
         return res.data;
     },
     getUserById: async (id: string) => {

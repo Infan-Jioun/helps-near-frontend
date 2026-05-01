@@ -46,13 +46,9 @@ async function verifyBetterAuthSession(sessionToken: string): Promise<TokenPaylo
                 cache: "no-store",
             }
         );
-
         if (!res.ok) return null;
-
         const session = await res.json();
-
         if (!session?.user) return null;
-
         return {
             userId: session.user.id,
             email: session.user.email,
@@ -69,6 +65,30 @@ function getDashboardByRole(role: string): string {
     return "/dashboard/user";
 }
 
+
+async function logPageVisit(req: NextRequest, user: TokenPayload | null) {
+    try {
+        await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/logs/frontend`,
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    timestamp: new Date().toISOString(),
+                    method: req.method,
+                    path: req.nextUrl.pathname,
+                    userAgent: req.headers.get("user-agent") ?? "unknown",
+                    ip: req.headers.get("x-forwarded-for") ?? "unknown",
+                    userId: user?.userId ?? "guest",
+                    role: user?.role ?? "guest",
+                }),
+            }
+        );
+    } catch {
+        // log fail হলেও page block হবে না
+    }
+}
+
 export default async function proxy(req: NextRequest) {
     const { pathname } = req.nextUrl;
 
@@ -82,19 +102,19 @@ export default async function proxy(req: NextRequest) {
 
     let user: TokenPayload | null = null;
 
-    // ১. Custom JWT (email/password login)
     const accessToken = req.cookies.get("accessToken")?.value;
     if (accessToken) {
         user = await verifyAccessToken(accessToken);
     }
 
-    // ২. Better Auth session (Google OAuth)
     if (!user) {
         const sessionToken = req.cookies.get("session_token")?.value;
         if (sessionToken) {
             user = await verifyBetterAuthSession(sessionToken);
         }
     }
+
+    logPageVisit(req, user)
 
     if (!user) {
         if (isPublicRoute(pathname)) return NextResponse.next();

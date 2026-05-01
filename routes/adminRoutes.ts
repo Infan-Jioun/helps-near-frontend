@@ -19,6 +19,11 @@ export const adminRoutes: Route[] = [
                 icon: Users,
             },
             {
+                 title : "All Logs",
+                 url : "/dashboard/admin/all-logs",
+                 icon : ClipboardList,
+            },
+            {
                 title: "Create Emergency",
                 url: "/dashboard/admin/create-emergency",
                 icon: AlertTriangle,

@@ -23,6 +23,7 @@ export default async function AllLogsPage() {
     ]);
 
     const logs = [...backendLogs, ...frontendLogs].sort(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (a: any, b: any) =>
             new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
     );

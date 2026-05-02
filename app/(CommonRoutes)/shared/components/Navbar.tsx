@@ -67,9 +67,11 @@ export default function Navbar() {
         try {
             await authApi.logout();
         } catch { }
-        setUser(null);
-        router.push("/login");
-        router.refresh();
+        finally {
+            setUser(null);
+            router.push("/login");
+            router.refresh();
+        }
     };
 
     const dashboardRoute =

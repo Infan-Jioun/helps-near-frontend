@@ -90,7 +90,7 @@ export default async function proxy(req: NextRequest) {
 
     // ২. Better Auth session (Google OAuth)
     if (!user) {
-        const sessionToken = req.cookies.get("session_token")?.value;
+        const sessionToken = req.cookies.get("better-auth-session_token")?.value;
         if (sessionToken) {
             user = await verifyBetterAuthSession(sessionToken);
         }

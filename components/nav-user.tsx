@@ -38,15 +38,18 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar()
   const router = useRouter();
-  const handleLogout = async () => {
-    try {
-      await authApi.logout();
-    } catch {
-    } finally {
-      router.push("/login");
-      router.refresh();
-    }
-  };
+    const handleLogout = async () => {
+        try {
+            await authApi.logout();
+        } catch { }
+        finally {
+            document.cookie = "accessToken=; Max-Age=0; path=/";
+            document.cookie = "refreshToken=; Max-Age=0; path=/";
+            document.cookie = "better-auth-session_token=; Max-Age=0; path=/";
+            router.push("/login");
+            router.refresh();
+        }
+    };
 
   return (
     <SidebarMenu>

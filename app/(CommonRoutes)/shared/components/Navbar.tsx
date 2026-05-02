@@ -63,11 +63,15 @@ export default function Navbar() {
         return () => window.removeEventListener("scroll", onScroll);
     }, []);
 
+   
     const handleLogout = async () => {
         try {
             await authApi.logout();
         } catch { }
         finally {
+            document.cookie = "accessToken=; Max-Age=0; path=/";
+            document.cookie = "refreshToken=; Max-Age=0; path=/";
+            document.cookie = "better-auth-session_token=; Max-Age=0; path=/";
             setUser(null);
             router.push("/login");
             router.refresh();

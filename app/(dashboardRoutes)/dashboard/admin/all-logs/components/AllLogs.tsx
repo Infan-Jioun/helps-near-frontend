@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -130,11 +131,26 @@ export default function AllLogs({ initialLogs }: Props) {
     const refetch = async () => {
         setLoading(true);
         try {
-            const res = await userApi.getAllLogs(); 
-            const merged = (res?.data ?? []).sort(
-                (a: LogEntry, b: LogEntry) =>
+            const [backendRes, frontendRes] = await Promise.allSettled([
+                userApi.getAllLogs(),
+                userApi.getFrontendLogs(),
+            ]);
+
+            const backendLogs =
+                backendRes.status === "fulfilled"
+                    ? backendRes.value?.data ?? []
+                    : [];
+
+            const frontendLogs =
+                frontendRes.status === "fulfilled"
+                    ? frontendRes.value?.data ?? []
+                    : [];
+
+            const merged = [...backendLogs, ...frontendLogs].sort(
+                (a: any, b: any) =>
                     new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
             );
+
             setLogs(merged);
         } catch (err) {
             console.error("Refetch failed:", err);

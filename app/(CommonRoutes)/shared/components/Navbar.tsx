@@ -21,8 +21,6 @@ import {
     X,
     AlertTriangle,
     Users,
-    Heart,
-    Phone,
     ChevronDown,
     LogOut,
     User,

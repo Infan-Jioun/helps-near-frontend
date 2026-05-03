@@ -21,7 +21,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { authApi } from "@/lib/authApi"
-import { axiosInstance } from "@/lib/axiosInstance"
 import { EllipsisVerticalIcon, CircleUserRoundIcon, CreditCardIcon, BellIcon, LogOutIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 

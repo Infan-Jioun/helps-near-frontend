@@ -11,7 +11,6 @@ import {
   SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-import { Settings2Icon, CircleHelpIcon, SearchIcon } from "lucide-react";
 import { axiosInstance } from "@/lib/axiosInstance";
 import Logo from "./logo/logo";
 import { adminRoutes } from "@/routes/adminRoutes";
@@ -36,11 +35,6 @@ interface NavUserShape {
   avatar: string;
 }
 
-const NAV_SECONDARY_ITEMS = [
-  { title: "Settings", url: "/settings", icon: <Settings2Icon /> },
-  { title: "Help", url: "/help", icon: <CircleHelpIcon /> },
-  { title: "Search", url: "/search", icon: <SearchIcon /> },
-];
 
 const GUEST_USER: NavUserShape = { name: "Guest", email: "", avatar: "" };
 

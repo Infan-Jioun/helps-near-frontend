@@ -175,10 +175,7 @@ export default function HeroSection() {
         fetchUser()
     }, [])
 
-    const dashboardRoute =
-        user?.role === "ADMIN" ? "/dashboard/admin/create-emergency"
-            : user?.role === "VOLUNTEER" ? "/dashboard/volunteer/create-emergency"
-                : "/dashboard/user/create-emergency"
+ 
 
     return (
         <>
@@ -319,7 +316,7 @@ export default function HeroSection() {
                                     style={{ background: "#dc2626", color: "#fff", border: "none" }}
                                     asChild
                                 >
-                                    <Link href={dashboardRoute}>
+                                    <Link href={"/dashboard/user/create-emergency"}>
                                         <AlertTriangle className="w-4 h-4" strokeWidth={2.5} />
                                         Report Emergency Now
                                     </Link>

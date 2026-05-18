@@ -7,9 +7,9 @@ const publicRoutes = [
     "/emergency", "/volunteers",
 ];
 const authRoutes = ["/login", "/register", "/verify-email"];
-const adminRoutes = ["/dashboard/admin"];
-const volunteerRoutes = ["/dashboard/volunteer"];
-const userRoutes = ["/dashboard/user"];
+const adminRoutes = ["/dashboard/admin", "/dashboard/admin/create-emergency", "/dashboard/admin/manage-emergencies", "/dashboard/admin/manage-volunteers"];
+const volunteerRoutes = ["/dashboard/volunteer", "/dashboard/volunteer/create-emergency", "/dashboard/volunteer/manage-emergencies"];
+const userRoutes = ["/dashboard/user", "/dashboard/user/create-emergency", "/dashboard/user/manage-emergencies"];
 
 function isPublicRoute(pathname: string) {
     return publicRoutes.some(

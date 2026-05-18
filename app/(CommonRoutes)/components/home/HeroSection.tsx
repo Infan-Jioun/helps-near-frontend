@@ -224,17 +224,9 @@ export default function HeroSection() {
 
             <section
                 ref={sectionRef}
-                className=" mt-20 lg:mt-24 relative min-h-screen flex flex-col justify-center overflow-hidden bg-white"
+                className="  relative min-h-screen flex flex-col justify-center overflow-hidden bg-white"
             >
-                {/* Dot-grid texture */}
-                <div
-                    className="absolute inset-0 pointer-events-none"
-                    style={{
-                        backgroundImage: "radial-gradient(circle, #e5e7eb 1px, transparent 1px)",
-                        backgroundSize: "28px 28px",
-                        opacity: 0.5,
-                    }}
-                />
+
 
                 {/* Ambient glows */}
                 <div className="absolute -top-40 -right-40 w-[640px] h-[640px] rounded-full pointer-events-none"
@@ -242,18 +234,7 @@ export default function HeroSection() {
                 <div className="absolute -bottom-28 -left-28 w-[500px] h-[500px] rounded-full pointer-events-none"
                     style={{ background: "radial-gradient(circle, rgba(251,191,36,0.05) 0%, transparent 65%)" }} />
 
-                {/* ── Live badge ── */}
-                <div ref={badgeRef} className="absolute top-8 left-0 right-0 flex justify-center z-10">
-                    <div className="flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold"
-                        style={{
-                            background: "rgba(220,38,38,0.07)",
-                            border: "1px solid rgba(220,38,38,0.2)",
-                            color: "#dc2626",
-                        }}>
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-600 hero-badge-dot" />
-                        Emergency Help Platform — Bangladesh
-                    </div>
-                </div>
+                
 
                 {/* ── Main grid ── */}
                 <div className="relative max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-28 pb-10">

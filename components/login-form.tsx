@@ -69,7 +69,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
         const params = new URLSearchParams(window.location.search);
         const redirect = params.get("redirect");
 
-        router.push(redirect || "/");
+        window.location.href = redirect || "/";
       }
 
 

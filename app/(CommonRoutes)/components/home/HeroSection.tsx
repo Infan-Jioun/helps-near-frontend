@@ -175,9 +175,10 @@ export default function HeroSection() {
         fetchUser()
     }, [])
 
-    const dashboardRoute =
-        user?.role === "ADMIN" ? "/dashboard/admin/create-emergency"
-            : user?.role === "VOLUNTEER" ? "/dashboard/volunteer/create-emergency"
+    const dashboardRoute = !user
+        ? "/login?redirect=/dashboard/user/create-emergency"
+        : user.role === "ADMIN" ? "/dashboard/admin/create-emergency"
+            : user.role === "VOLUNTEER" ? "/dashboard/volunteer/create-emergency"
                 : "/dashboard/user/create-emergency"
 
     return (
